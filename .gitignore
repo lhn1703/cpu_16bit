@@ -1,4 +1,2 @@
-
-cpu_16bit.cr.mti
-cpu_16bit.mpf
+*.mti
 *.mpf
