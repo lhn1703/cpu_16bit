@@ -1,3 +1,3 @@
-module test(output a);
+module test1(output a);
 	assign a = 1;
 endmodule
