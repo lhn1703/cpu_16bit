@@ -1,9 +1,18 @@
-C:/Users/L/Documents/GitHub/cpu_16bit/memory_stack.v {0 {vlog -work work -stats=none {C:\Users\L\Documents\GitHub\cpu_16bit\memory_stack.v}
+C:/Users/L/Documents/GitHub/cpu_16bit/memory_stack.v {1 {vlog -work work -stats=none {C:\Users\L\Documents\GitHub\cpu_16bit\memory_stack.v}
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Error: (vlog-66) Execution of vlib.exe failed. Please check the error log for more details.
 
-} {3.0 4.0} {}} C:/Users/L/Documents/GitHub/cpu_16bit/cpu_control.v {0 {vlog -work work -stats=none {C:\Users\L\Documents\GitHub\cpu_16bit\cpu_control.v}
+} {} {}} C:/Users/L/Documents/GitHub/cpu_16bit/instruction_stack.v {1 {vlog -work work -stats=none C:/Users/L/Documents/GitHub/cpu_16bit/instruction_stack.v
 Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
-** Error: (vlog-66) Execution of vlib.exe failed. Please check the error log for more details.
+-- Compiling module test1
 
-} {3.0 4.0} {}}
+Top level modules:
+	test1
+
+} {} {}} C:/Users/L/Documents/GitHub/cpu_16bit/cpu_control.v {1 {vlog -work work -stats=none {C:\Users\L\Documents\GitHub\cpu_16bit\cpu_control.v}
+Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+-- Compiling module test
+
+Top level modules:
+	test
+
+} {} {}}
