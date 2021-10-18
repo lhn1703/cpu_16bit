@@ -1,4 +1,4 @@
-*.mti
+**.mti
 *.mpf
 *.bak
 **/work/
