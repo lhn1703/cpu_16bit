@@ -1,7 +1,8 @@
 # Compile of cpu_control.v was successful.
 # Compile of instruction_stack.v was successful.
-# Compile of macro_defines.v was successful.
 # Compile of memory_stack.v was successful.
-# Compile of registers.v was successful.
-# Compile of registers_tb.v failed with 2 errors.
-# 6 compiles, 1 failed with 2 errors.
+# 3 compiles, 0 failed with no errors.
+# Compile of cpu_control.v was successful.
+# Compile of instruction_stack.v was successful.
+# Compile of memory_stack.v was successful.
+# 3 compiles, 0 failed with no errors.
