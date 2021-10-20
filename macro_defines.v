@@ -20,7 +20,22 @@
 `define lr 14
 `define pc 15
 
-
+`define add 4'd0
+`define addi 4'd1
+`define sub 4'd2
+`define and 4'd3
+`define or 4'd4
+`define xor 4'd5
+`define not 4'd6
+`define slt 4'd7
+`define lsl 4'd8
+`define lsr 4'd9
+`define ldr 4'd10
+`define str 4'd11
+`define b 4'd12
+`define bl 4'd13
+`define br 4'd14
+`define beq 4'd15
 `endif //_macro_defines_v
 
 
