@@ -69,7 +69,7 @@ try:
         if args.clk is not None:
             output_file.write('\n\talways clk = #5 clk;' + "\n") 
         output_file.write('\n\t' + module_instantiation + "\n")
-        output_file.write('\n\tinital begin\n\n\tend' + "\n")
+        output_file.write('\n\tinitial begin\n\n\tend' + "\n")
         output_file.write('\nendmodule' + "\n")
         
         input_file.close()
