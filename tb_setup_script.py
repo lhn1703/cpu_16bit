@@ -33,7 +33,7 @@ try:
         module_name = line[7:line.find('(')] + '_tb()'
         
         
-        variables =  line[line.find('(')+1:-3]   
+        variables =  line[line.find('(')+1:-2]   
         variables = variables.replace('output reg', 'wire')
         variables = variables.replace('output', 'wire')
         variables = variables.replace('input', 'reg')
@@ -42,18 +42,21 @@ try:
         type_list = []
         new_type_index = 0
         variables = variables.split(', ')
+        
         for i in range(len(variables)):
             for data in data_type:               
-                if (variables[i][0:5].find(data) > -1):
+                if (variables[i].find(data) > -1):
                     if (i == 0):
                         continue
-                    if (i == len(variables)-1):
-                        type_list.append(variables[new_type_index:i+1])   
-                        break 
+                    #if (i == len(variables)-1):
+                     #   type_list.append(variables[new_type_index:i+1])   
+                     #   break 
                     type_list.append(variables[new_type_index:i])                            
                     new_type_index = i
-        type_list.append(variables[new_type_index:len(variables)])             
+        type_list.append(variables[new_type_index:len(variables)])  
+
         for type in type_list:
+
             string_concat = ', '.join(type) + ';\n'
             output_file.write('\t' + string_concat)
 

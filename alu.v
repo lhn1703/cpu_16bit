@@ -1,7 +1,7 @@
 
 `include "macro_defines.v"
 
-module alu(output reg [15:0] out, reg zero, input [15:0] a, [15:0] b, [3:0] op);
+module alu(output reg [15:0] out, output zero, input [15:0] a, b, input [3:0] op);
 	assign zero = (out == 16'b0) ? 1'b1 : 1'b0;
 	always @(*) begin
 		case(op)
