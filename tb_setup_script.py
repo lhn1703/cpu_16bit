@@ -25,8 +25,8 @@ try:
         if (f[f.find('(')+1] == ' '):
             f = remove_char(f, f.find('(')+1)
         if (f[f.find(')')-1] == ' '):
-            f = remove_char(f, f.find('(')-1)
-        line = f
+            f = remove_char(f, f.find(')')-1)        
+        line = f       
         if (line.find('#') > -1):
             params = line[line.find('#'):line.find('(')+1]
             line = line[line.find('(')+1:]
@@ -57,6 +57,7 @@ try:
             string_concat = ', '.join(type) + ';\n'
             output_file.write('\t' + string_concat)
 
+        module_name = module_name[0:-5];
         module_instantiation = module_name + ' u1('
         variables = ' '.join(variables)
         variables = variables.split(' ')
