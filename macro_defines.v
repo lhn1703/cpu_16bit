@@ -15,7 +15,6 @@
 `define r10 10
 `define r11 11
 `define r_zero 12
-`define r_0 12
 `define sp 13
 `define lr 14
 `define pc 15
