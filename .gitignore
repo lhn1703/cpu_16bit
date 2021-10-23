@@ -6,3 +6,5 @@ transcript
 !assembler
 assembler/*
 !assembler/assembler.cpp
+!assembler/input.txt
+!assembler/output.txt
