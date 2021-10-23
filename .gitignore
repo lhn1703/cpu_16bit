@@ -3,4 +3,6 @@
 *.bak
 **/work/
 transcript
-assembler
+!assembler
+assembler/*
+!assembler/assembler.cpp
