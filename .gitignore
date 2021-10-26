@@ -1,6 +1,7 @@
 *.mti
 *.mpf
 *.bak
+*.wlf
 **/work/
 transcript
 !assembler
