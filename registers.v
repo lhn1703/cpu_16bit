@@ -9,8 +9,8 @@ module registers(
 	
 	reg [15:0] register_mem[0:15];	
 	always @ (posedge clk) begin
-        register_mem[`r_0] <= 0;
-		if (reg_write && write_reg != `r_0)
+        register_mem[`r_zero] <= 0;
+		if (reg_write && write_reg != `r_zero)
 			register_mem[write_reg] <= write_data;
 		read_data1 <= register_mem[read_reg1];
 		read_data2 <= register_mem[read_reg2];

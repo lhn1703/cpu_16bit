@@ -19,6 +19,7 @@
 `define lr 14
 `define pc 15
 
+//instruction names
 `define add 4'd0
 `define addi 4'd1
 `define sub 4'd2
@@ -35,6 +36,8 @@
 `define bl 4'd13
 `define br 4'd14
 `define beq 4'd15
+
+//memory sizes
 `endif //_macro_defines_v
 
 

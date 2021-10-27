@@ -7,6 +7,8 @@ parser.add_argument('--clk', type=int, help='optional synchronous clock (int)')
 args = parser.parse_args()
 in_name = args.input.replace('.\\', '')
 
+print("Make sure the .v input file does not have any stray spaces at the end each line.")
+
 def remove_char(str, n):
       first_part = str[:n] 
       last_part = str[n+1:]
@@ -42,7 +44,6 @@ try:
         type_list = []
         new_type_index = 0
         variables = variables.split(', ')
-        
         for i in range(len(variables)):
             for data in data_type:               
                 if (variables[i].find(data) > -1):
@@ -50,7 +51,7 @@ try:
                         continue
                     #if (i == len(variables)-1):
                      #   type_list.append(variables[new_type_index:i+1])   
-                     #   break 
+                     #   break
                     type_list.append(variables[new_type_index:i])                            
                     new_type_index = i
         type_list.append(variables[new_type_index:len(variables)])  
@@ -64,6 +65,7 @@ try:
         module_instantiation = module_name + ' u1('
         variables = ' '.join(variables)
         variables = variables.split(' ')
+
         for var in variables:
             if not (var == 'wire' or var == 'reg' or var.find(':') > -1):
                 module_instantiation += '.' + var + ", "
