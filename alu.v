@@ -3,21 +3,57 @@
 
 module alu(output reg [15:0] out, output zero, input [15:0] a, b, input [3:0] op);
 	assign zero = (out == 16'b0) ? 1'b1 : 1'b0;
-	always @(*) begin
+	
+	wire [15:0] sum;
+	reg c_in;
+	assign b_sel = b ^ c_in;
+	cla_16 adder(.s(sum), .c_in, .a, .b(b_sel));
+	
+	reg left;
+	barrel_shift shifter(.out(shift), .a, .b, left);
+	
+	always begin
 		case(op)
-			`add: out = a + b;
-			`addi: out = a + b;
-			`sub: out = a - b;
+			`add: begin
+				c_in = 0;
+				out = sum;
+			end
+			`addi: begin
+				c_in = 0;
+				out = sum;
+			end
+			`sub: begin
+				c_in = 1;
+				out = sum;
+			end
 			`and: out = a & b;
 			`or: out = a | b;
 			`xor: out = a ^ b;
 			`not: out = ~a;
-			`slt: out = (a < b) ? 16'b1 : 16'b0;
-			`lsl: out = a << b;
-			`lsr: out = a >> b;
-			`ldr: out = a + b;
-			`str: out = a + b;
-			`beq: out = a - b;
+			`slt: begin
+				c_in = 1;
+				out = (sum[15]) ? 16'b1 : 16'b0;
+			end
+			`lsl: begin
+				left = 1;
+				out = shifted;
+			end
+			`lsr: begin
+				left = 0;
+				out = shifted;
+			end
+			`ldr: begin
+				c_in = 0;
+				out = sum;
+			end
+			`str: begin
+				c_in = 0;
+				out = sum;
+			end
+			`beq: begin
+				c_in = 1;
+				out = sum;
+			end
 		endcase
 	end
 endmodule
