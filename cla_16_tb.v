@@ -1,5 +1,5 @@
 
-module add_tb;
+module cla_16_tb;
 	reg [15:0] a, b;
 	reg c_in;
 	wire [15:0] s, b_n;

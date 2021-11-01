@@ -1,6 +1,6 @@
 
 module barrel_shift(output reg [15:0] out, input left, [15:0] a, [15:0] b);
-	always begin
+	always @(*) begin
 		case(b)
 			0: out = a;
 			1: out = ((left) ? {a[14:0], 1'b0} : {1'b0, a[15:1]});
