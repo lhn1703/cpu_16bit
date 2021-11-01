@@ -4,10 +4,12 @@ module instruction_memory
 	(
 	output reg [15:0] instruction,
 	input [7:0] address,
-	input clk
+	//input clk
 	);
 	
 	reg [15:0] mem [0:7];
-	always @ (posedge clk)
-		instruction <= mem[address];
+	//always @ (posedge clk)
+	//	instruction <= mem[address];
+	always @ (address)
+		instruction = mem[address];
 endmodule
