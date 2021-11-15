@@ -9,7 +9,7 @@ module controls (
 	always @ (opcode) begin
 		case (opcode)
 			`add: `output_group = 8'b1000_0001;
-				
+			`addi: 
 		endcase
 	end
 endmodule
