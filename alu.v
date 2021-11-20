@@ -18,13 +18,13 @@ module alu(output zero, reg [15:0] out, input [15:0] a, [15:0] b, [3:0] op);
 		case(op)
 			4'd0: out = sum;
 			4'd1: out = sum;
-			4d'2: out = a & b;
-			4d'4: out = a | b;
-			4d'6: out = a ^ b;
-			4d'7: out = (sum[15]) ? 16'b1 : 16'b0;
-			4d'8: out = shifted;
-			4d'12: out = shifted;
-			4d'14: out = ~a;
+			4'd2: out = a & b;
+			4'd4: out = a | b;
+			4'd6: out = a ^ b;
+			4'd7: out = (sum[15]) ? 16'b1 : 16'b0;
+			4'd8: out = shifted;
+			4'd12: out = shifted;
+			4'd14: out = ~a;
 			default: out = sum;
 		endcase
 	end
