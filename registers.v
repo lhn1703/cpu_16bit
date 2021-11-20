@@ -7,7 +7,7 @@ module registers(
 	input reg_write, clk
 	);		
 	
-	reg [15:0] register_mem[0:15];	
+	reg [15:0] register_mem [0:15];	
 	always @ (posedge clk) begin
         register_mem[`r_zero] <= 0;
 		if (reg_write && write_reg != `r_zero)
