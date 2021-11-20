@@ -37,11 +37,8 @@
 `define br 4'd14
 `define beq 4'd15
 
-//memory sizes - 1
+//memory size of data and instruction memory = 2^16 - 1
 `define data_size 16'd65535
 
 
 `endif //_macro_defines_v
-
-
-
