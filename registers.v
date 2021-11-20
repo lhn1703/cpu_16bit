@@ -1,7 +1,7 @@
 `include "macro_defines.v"
 
 module registers(
-	output reg [16:0] read_data1, read_data2,
+	output reg [15:0] read_data1, read_data2,
 	input [3:0] read_reg1, read_reg2, write_reg,
 	input [15:0] write_data,
 	input reg_write, clk
