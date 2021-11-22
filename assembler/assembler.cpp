@@ -6,6 +6,9 @@
 // the assembly file gets parsed by getline and whitespace
 // thus any label term must be separated from the instruction via space or tab
 // all literals must be in decimal
+// b range is 2^12 - 1
+// bl range is 2^8 - 1
+// beq range is only -8 to +7
 
 #include <iostream>
 #include <fstream>
@@ -39,7 +42,6 @@ int main()
 	ifstream fin;
 	ofstream fout;
 
-
 	string inputFile = "input.txt", outputFile = "output.txt";
 	fin.open(inputFile);
 	fout.open(outputFile);
@@ -47,7 +49,29 @@ int main()
 	vector<pair<string, int>> labelList;
 	string line;
 	int instructionAddress = 0; //assumes that the instruction address starts at 0, can change later
+
 	while (getline(fin, line))
+	{
+		stringstream ss(line);
+		string temp;
+		ss >> temp;
+		if (temp.back() == ':')
+		{
+			temp.pop_back();
+			labelList.push_back(make_pair(temp, instructionAddress));
+			cout << temp + "_" + to_string(instructionAddress) + "\n";
+			instructionAddress++;
+			continue;
+		}
+		instructionAddress++;
+	}
+
+	fin.clear();
+	fin.seekg(0);
+
+	instructionAddress = 0;
+
+	while (getline(fin, line)) //extracts each instruction by line
 	{
 		stringstream ss(line);
 
@@ -55,39 +79,46 @@ int main()
 		string machineCode = "";
 		bool opcodeSeen = false;
 		string instruction = "";
+		vector<string> params;
 
+		//extracts every string from each line separated by a space
 		while (ss >> temp)
 		{
 			if (temp.back() == ':') //keeps track of the label and ignores it from string
 			{
-				temp.pop_back();
-				labelList.push_back(make_pair(temp, instructionAddress));
 				continue;
+				//temp.pop_back();
+				//for (int i = 0; i < labelList.size(); i++) //loops through preexisting labels
+				//	if (labelList[i].first == temp)
+				//		continue;
+
+				//labelList.push_back(make_pair(temp, instructionAddress));
+				//continue;
 			}
 
-			if (!opcodeSeen)
+			if (!opcodeSeen) //excluding label, the first string seen must be the opcode
 			{
 				instruction = temp;
 				machineCode += getOpcode(opcodeList, temp) + "_";
 				opcodeSeen = true;
 			}
-
-			else if (temp.back() == ',' || temp.back() == ';')
+			else if (temp.back() == ',' || temp.back() == ';') //if is not the opcode then it is a parameter
 			{
-				if (temp.back() == ';')
+				if (temp.back() == ';') //if ; endline is seen, increment the instruction address
 					instructionAddress++;
 
-				temp.pop_back();
-				// if is a register
-				if ((temp.size() == 2 && temp[0] == 'r' && isdigit(temp[1])) || temp == "r_zero" || temp == "sp" || temp == "lr")
-					machineCode += getRegister(registerList, temp) + "_";
+				temp.pop_back(); //delete the , or ; from the param string
+
+				//if it is a register, push it onto the param vector
+				if (((temp.size() == 2 || temp.size() == 3) && temp[0] == 'r' && isdigit(temp[1])) || temp == "r_zero" || temp == "sp" || temp == "lr")
+					params.push_back(getRegister(registerList, temp));
 				else
 				{
-					if (isImm(temp))
+					if (isImm(temp)) //push immediate values
 					{
-						machineCode += bitset<4>(stoi(temp)).to_string() + "_";
+						params.push_back(bitset<4>(stoi(temp)).to_string());
 					}
-					else
+					else //arithmetic logic to convert labels to number
 					{
 						bool found = false;
 						for (int i = 0; i < labelList.size(); i++)
@@ -95,14 +126,20 @@ int main()
 							if (labelList[i].first == temp)
 							{
 								found = true;
-								if (instruction == "b" || instruction == "bl")
-									machineCode += bitset<12>(labelList[i].second).to_string() + "_";
-								else if (instruction == "beq")
-									machineCode += bitset<4>(labelList[i].second - instructionAddress + 1).to_string() + "_";
+								if (instruction == "b") //branch label is 12 bits
+									params.push_back(bitset<12>(labelList[i].second).to_string());
+								else if (instruction == "bl") //branch and link label is 8 bits
+									params.push_back(bitset<8>(labelList[i].second).to_string());
+								else if (instruction == "beq") //branch on equal is 4 bits; find the label and find the offset from the current; + 1 because 
+									params.push_back(bitset<4>(labelList[i].second - instructionAddress + 1).to_string());
+								else 
+								{
+									cout << "Error parsing instruction " + line + " at line: " + to_string(instructionAddress);
+									exit(2);
+								}
 							}
 						}
-
-						if (!found)
+						if (!found) //if the label is not found
 						{
 							cout << "Could not find label: " << temp;
 							exit(2);
@@ -112,6 +149,25 @@ int main()
 			}
 		}
 
+		/*
+		"add", "addi", "sub", "and",
+		"or", "xor", "not", "slt",
+		"lsl", "lsr", "ldr", "str",
+		"b", "bl", "br", "beq"
+		*/
+
+		if (instruction == "not")
+			machineCode += params[1] + "_0000_" + params[0];
+		else if (instruction == "b")
+			machineCode += params[0];
+		else if (instruction == "bl")
+			machineCode += params[0] + "_" + getRegister(registerList, "lr");
+		else if (instruction == "br")
+			machineCode += params[0] + "_0000_0000";
+		else if (instruction == "beq" || instruction == "ldr" || instruction == "str" || instruction == "addi" || instruction == "lsl" || instruction == "lsr")
+			machineCode += params[1] + "_" + params[0] + "_" + params[2];
+		else
+			machineCode += params[1] + "_" + params[2] + "_" + params[0];
 		fout << machineCode << endl;
 	}
 	cout << "Assembly successfully converted into machine code. Check output.txt\n";
