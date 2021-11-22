@@ -55,7 +55,9 @@ module cpu_16bit (input [15:0] instruction_in, input load_instruction, clk, pc_r
 	add_1 u_add_1 (pc_plus_1, pc_address);
 	
 	cla_16 branch_add (branch_sum, 0'b0, pc_plus_1, sign_extend16);
-
+	
+	alu u_alu (zero, ALU_out, a, b, alu_op);
+	
     pc u_pc (pc_address, new_pc_address, clk, pc_reset);
 	
     instruction_memory u_instr_mem (
