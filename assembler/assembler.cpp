@@ -92,7 +92,7 @@ int main()
 				*/
 
 				//if it is a register, push it onto the param vector
-				if ((temp.size() == 2 && temp[0] == 'r' && isdigit(temp[1])) || temp == "r_zero" || temp == "sp" || temp == "lr")
+				if (((temp.size() == 2 || temp.size() == 3) && temp[0] == 'r' && isdigit(temp[1])) || temp == "r_zero" || temp == "sp" || temp == "lr")
 					params.push_back(getRegister(registerList, temp));
 				else
 				{
