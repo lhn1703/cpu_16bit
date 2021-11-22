@@ -55,7 +55,9 @@ int main()
 		string machineCode = "";
 		bool opcodeSeen = false;
 		string instruction = "";
+		vector<string> params;
 
+		//extracts every string from each line separated by a space
 		while (ss >> temp)
 		{
 			if (temp.back() == ':') //keeps track of the label and ignores it from string
@@ -65,7 +67,7 @@ int main()
 				continue;
 			}
 
-			if (!opcodeSeen)
+			if (!opcodeSeen) //excluding label, the first string seen is the opcode
 			{
 				instruction = temp;
 				machineCode += getOpcode(opcodeList, temp) + "_";
@@ -74,20 +76,31 @@ int main()
 
 			else if (temp.back() == ',' || temp.back() == ';')
 			{
-				if (temp.back() == ';')
+				if (temp.back() == ';') //if ; line end is seen, increment the instruction address
 					instructionAddress++;
 
-				temp.pop_back();
-				// if is a register
+				temp.pop_back(); //delete the , or ;
+
+				/*
+				add		rd, rs, rt
+				addi	rd, rs, imm
+				ldr		rt, rs, offset
+				b		label(12)
+				bl		(rs,) label(8)
+				br		rs
+				beq		rs, rt, label(4)
+				*/
+
+				//if it is a register, push it onto the param vector
 				if ((temp.size() == 2 && temp[0] == 'r' && isdigit(temp[1])) || temp == "r_zero" || temp == "sp" || temp == "lr")
-					machineCode += getRegister(registerList, temp) + "_";
+					params.push_back(getRegister(registerList, temp));
 				else
 				{
-					if (isImm(temp))
+					if (isImm(temp)) //immediate values
 					{
-						machineCode += bitset<4>(stoi(temp)).to_string() + "_";
+						params.push_back(bitset<4>(stoi(temp)).to_string());
 					}
-					else
+					else //labels
 					{
 						bool found = false;
 						for (int i = 0; i < labelList.size(); i++)
@@ -95,13 +108,19 @@ int main()
 							if (labelList[i].first == temp)
 							{
 								found = true;
-								if (instruction == "b" || instruction == "bl")
-									machineCode += bitset<12>(labelList[i].second).to_string() + "_";
+								if (instruction == "b")
+									params.push_back(bitset<12>(labelList[i].second).to_string());
+								else if (instruction == "bl")
+									params.push_back(bitset<8>(labelList[i].second).to_string());
 								else if (instruction == "beq")
-									machineCode += bitset<4>(labelList[i].second - instructionAddress + 1).to_string() + "_";
+									params.push_back(bitset<4>(labelList[i].second - instructionAddress + 1).to_string());
+								else 
+								{
+									cout << "Error parsing instruction " + line + " at line: " + to_string(instructionAddress);
+									exit(2);
+								}
 							}
 						}
-
 						if (!found)
 						{
 							cout << "Could not find label: " << temp;
@@ -112,6 +131,27 @@ int main()
 			}
 		}
 
+		/*
+		"add", "addi", "sub", "and",
+		"or", "xor", "not", "slt",
+		"lsl", "lsr", "ldr", "str",
+		"b", "bl", "br", "beq"
+		*/
+
+		if (instruction == "not")
+			machineCode += params[1] + "_0000_" + params[0];
+		else if (instruction == "b")
+			machineCode += params[0];
+		else if (instruction == "bl")
+			machineCode += params[0] + "_" + getRegister(registerList, "lr");
+		else if (instruction == "br")
+			machineCode += params[0] + "_0000_0000";
+		//else if (instruction == "beq")
+		//	machineCode += params[0] + "_" + params[1] + "_" + params[2];
+		else if (instruction == "beq" || instruction == "ldr" || instruction == "str" || instruction == "addi" || instruction == "lsl" || instruction == "lsr")
+			machineCode += params[1] + "_" + params[0] + "_" + params[2];
+		else
+			machineCode += params[1] + "_" + params[2] + "_" + params[0];
 		fout << machineCode << endl;
 	}
 	cout << "Assembly successfully converted into machine code. Check output.txt\n";
