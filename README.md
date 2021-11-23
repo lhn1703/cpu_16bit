@@ -1,2 +1,2 @@
 # cpu_16bit
-![Optional Text](../documentation/CPU_diagram.png)
+![alt text](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/CPU_Diagram.png)
