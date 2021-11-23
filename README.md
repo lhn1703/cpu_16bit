@@ -1,2 +1,2 @@
 # cpu_16bit
-ECE 174 final project
+![Optional Text](../documentation/CPU_diagram.png)
