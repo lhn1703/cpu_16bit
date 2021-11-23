@@ -1,5 +1,5 @@
 # cpu_16bit
-Custom CPU Architecture Diagram
+Custom CPU Architecture design inspired by MIPS and ARM
 ![alt text](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/CPU_Diagram.png)
 
 # Instruction List 
