@@ -141,8 +141,8 @@ int main()
 						}
 						if (!found) //if the label is not found
 						{
-							cout << "Could not find label: " << temp;
-							exit(2);
+							cout << "Could not parse: " << temp << " at line " + to_string(instructionAddress);
+							exit(3);
 						}
 					}
 				}
