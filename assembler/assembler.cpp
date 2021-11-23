@@ -129,7 +129,7 @@ int main()
 								if (instruction == "b") //branch label is 12 bits
 									params.push_back(bitset<12>(labelList[i].second).to_string());
 								else if (instruction == "bl") //branch and link label is 8 bits
-									params.push_back(bitset<8>(labelList[i].second).to_string());
+									params.push_back(bitset<8>(labelList[i].second - instructionAddress + 1).to_string());
 								else if (instruction == "beq") //branch on equal is 4 bits; find the label and find the offset from the current; + 1 because 
 									params.push_back(bitset<4>(labelList[i].second - instructionAddress + 1).to_string());
 								else 
