@@ -9,6 +9,7 @@
 // b range is 2^12 - 1
 // bl range is 2^8 - 1
 // beq range is only -8 to +7
+// vector out of range can mean missing semicolon
 
 #include <iostream>
 #include <fstream>
@@ -42,15 +43,27 @@ int main()
 	ifstream fin;
 	ofstream fout;
 
-	string inputFile = "input.txt", outputFile = "output.txt";
+	//string inputFile = "input.txt", outputFile = "output.txt";
+	string inputFile, outputFile;
+
+	cout << "Enter input file name: ";
+	cin >> inputFile;
+
 	fin.open(inputFile);
+	if (fin.fail())
+	{
+		cout << "Could not find " << inputFile << endl;
+		exit(1);
+	}
+
+	outputFile = inputFile.substr(0, inputFile.size() - 4) + "_machine_code.txt";
 	fout.open(outputFile);
 	
 	vector<pair<string, int>> labelList;
 	string line;
 	int instructionAddress = 0; //assumes that the instruction address starts at 0, can change later
 
-	while (getline(fin, line))
+	while (getline(fin, line)) //first pass to extract all labels from the assembly code
 	{
 		stringstream ss(line);
 		string temp;
@@ -69,7 +82,7 @@ int main()
 	fin.clear();
 	fin.seekg(0);
 
-	instructionAddress = 0;
+	instructionAddress = 0; //assumes that the instruction address starts at 0, can change later
 
 	while (getline(fin, line)) //extracts each instruction by line
 	{
@@ -84,19 +97,10 @@ int main()
 		//extracts every string from each line separated by a space
 		while (ss >> temp)
 		{
-			if (temp.back() == ':') //keeps track of the label and ignores it from string
-			{
+			if (temp.back() == ':') //ignores labels on the second pass
 				continue;
-				//temp.pop_back();
-				//for (int i = 0; i < labelList.size(); i++) //loops through preexisting labels
-				//	if (labelList[i].first == temp)
-				//		continue;
 
-				//labelList.push_back(make_pair(temp, instructionAddress));
-				//continue;
-			}
-
-			if (!opcodeSeen) //excluding label, the first string seen must be the opcode
+			if (!opcodeSeen) //excluding label, the first string detected must be the opcode
 			{
 				instruction = temp;
 				machineCode += getOpcode(opcodeList, temp) + "_";
@@ -104,9 +108,9 @@ int main()
 			}
 			else if (temp.back() == ',' || temp.back() == ';') //if is not the opcode then it is a parameter
 			{
-				if (temp.back() == ';') //if ; endline is seen, increment the instruction address
+				if (temp.back() == ';') //if semicolon is seen, increment the instruction address
 					instructionAddress++;
-
+					
 				temp.pop_back(); //delete the , or ; from the param string
 
 				//if it is a register, push it onto the param vector
@@ -118,7 +122,7 @@ int main()
 					{
 						params.push_back(bitset<4>(stoi(temp)).to_string());
 					}
-					else //arithmetic logic to convert labels to number
+					else //push label or raise exception
 					{
 						bool found = false;
 						for (int i = 0; i < labelList.size(); i++)
@@ -126,11 +130,11 @@ int main()
 							if (labelList[i].first == temp)
 							{
 								found = true;
-								if (instruction == "b") //branch label is 12 bits
+								if (instruction == "b") //branch label is 12 bits of the absolute instruction address
 									params.push_back(bitset<12>(labelList[i].second).to_string());
-								else if (instruction == "bl") //branch and link label is 8 bits
+								else if (instruction == "bl") //branch and link label is 8 bits signed offset from current instruction to label
 									params.push_back(bitset<8>(labelList[i].second - instructionAddress).to_string());
-								else if (instruction == "beq") //branch on equal is 4 bits; find the label and find the offset from the current; + 1 because 
+								else if (instruction == "beq") //branch on equal is 4 bits signed offset from current instruction to label
 									params.push_back(bitset<4>(labelList[i].second - instructionAddress).to_string());
 								else 
 								{
@@ -139,9 +143,9 @@ int main()
 								}
 							}
 						}
-						if (!found) //if the label is not found
+						if (!found) //catches any errors while parsing label
 						{
-							cout << "Could not parse: " << temp << " at line " + to_string(instructionAddress);
+							cout << "Could not parse: " << temp << " at line: " + to_string(instructionAddress);
 							exit(3);
 						}
 					}
@@ -149,13 +153,7 @@ int main()
 			}
 		}
 
-		/*
-		"add", "addi", "sub", "and",
-		"or", "xor", "not", "slt",
-		"lsl", "lsr", "ldr", "str",
-		"b", "bl", "br", "beq"
-		*/
-
+		//writes the machine code to the file
 		if (instruction == "not")
 			machineCode += params[1] + "_0000_" + params[0];
 		else if (instruction == "b")
@@ -170,7 +168,8 @@ int main()
 			machineCode += params[1] + "_" + params[2] + "_" + params[0];
 		fout << machineCode << endl;
 	}
-	cout << "Assembly successfully converted into machine code. Check output.txt\n";
+	cout << "Assembly successfully converted into machine code. Check " + outputFile + "\n";
+	return 0;
 }
 
 string getOpcode(vector<string>& opcodeList, string op)
@@ -202,15 +201,3 @@ bool isImm(string s)
 	}
 	return true;
 }
-
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
