@@ -2,8 +2,9 @@
 module instruction_memory
 	(
 	output reg [15:0] instruction_out,
-	input [15:0] address, 
+	input [15:0] address,
 	input [15:0] instruction_in,
+	input [15:0] load_address,
 	input instruction_write, clk 
 	);
 	
@@ -15,6 +16,6 @@ module instruction_memory
 
 	always @ (posedge clk) begin
 		if (instruction_write)
-			mem[address] <= instruction_in;		
+			mem[load_address] <= instruction_in;		
 	end	
 endmodule

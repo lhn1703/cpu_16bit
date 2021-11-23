@@ -1,4 +1,4 @@
-module cpu_16bit (input [15:0] instruction_in, input load_instruction, clk, pc_reset);
+module cpu_16bit (input [15:0] instruction_in, load_address, input load_instruction, clk, pc_reset);
     //Branching
 	wire [15:0] pc_plus_1, branch_sum;
 	wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
@@ -17,15 +17,14 @@ module cpu_16bit (input [15:0] instruction_in, input load_instruction, clk, pc_r
     wire [15:0] read_data1, read_data2;
 	wire [3:0] read_reg1, read_reg2, write_reg;
 	wire [15:0] reg_write_data;
-	wire reg_write;
 	wire [7:0] sign_extend4, immediate;
     wire [15:0] sign_extend16;
     assign read_reg1 = instruction[11:8];
     assign read_reg2 = instruction[7:4];
     assign write_reg = (reg_dst == 0) ? instruction[7:4] : instruction[3:0];
-	assign sign_extend4 = {4{instruction[3]}, instruction[3:0]};
+	assign sign_extend4 = {{4{instruction[3]}}, instruction[3:0]};
 	assign immediate = (bl == 0) ? sign_extend4 : instruction[11:4];
-    assign sign_extend16 = {8{immediate[7]}, immediate};
+    assign sign_extend16 = {{8{immediate[7]}}, immediate};
 
     //EX: alu
     wire zero;
@@ -45,7 +44,7 @@ module cpu_16bit (input [15:0] instruction_in, input load_instruction, clk, pc_r
 	assign write_back2 = (bl == 0) ? write_back1 : pc_plus_1;
 	
 	assign new_pc_address1 = (beq&zero == 1) ? branch_sum : pc_plus_1;
-	assign new_pc_address2 = (branch == 0) ? new_pc_address1 : {pc_plus_1[15:3], instruction[11:0]};
+	assign new_pc_address2 = (branch == 0) ? new_pc_address1 : {pc_plus_1[15:12], instruction[11:0]};
 	assign new_pc_address3 = (br == 0) ? new_pc_address2 : read_data1;
 
 	//WB: write back
@@ -61,7 +60,7 @@ module cpu_16bit (input [15:0] instruction_in, input load_instruction, clk, pc_r
     pc u_pc (pc_address, new_pc_address, clk, pc_reset);
 	
     instruction_memory u_instr_mem (
-        instruction, pc_address, instruction_in, load_instruction, clk
+        instruction, pc_address, instruction_in, load_address, load_instruction, clk
     );
 
     controls u_control (

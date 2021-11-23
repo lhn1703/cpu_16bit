@@ -1,5 +1,0 @@
-start:	add r0, r1, r2;
-loop:	sub r4, r4, r3;
-		lsr r6, r7, 3;
-		beq	r5, r_zero, loop;
-		b start;

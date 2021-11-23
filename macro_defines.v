@@ -14,10 +14,10 @@
 `define r9 9
 `define r10 10
 `define r11 11
-`define r_zero 12
-`define sp 13
-`define lr 14
-`define pc 15
+`define r12 12
+`define r_zero 13
+`define sp 14
+`define lr 15
 
 //instruction names
 `define add 4'd0
