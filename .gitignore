@@ -2,8 +2,8 @@
 *.mpf
 *.bak
 *.wlf
-.vs
-.vscode
+.vs/
+.vscode/
 **/work/
 transcript
 !assembler
