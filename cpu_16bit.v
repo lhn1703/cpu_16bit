@@ -43,7 +43,7 @@ module cpu_16bit (input [15:0] instruction_in, load_address, input load_instruct
 	assign write_back1 = (mem_to_reg == 0) ? ALU_out : read_data;
 	assign write_back2 = (bl == 0) ? write_back1 : pc_plus_1;
 	
-	assign new_pc_address1 = (beq&zero == 1) ? branch_sum : pc_plus_1;
+	assign new_pc_address1 = (beq&zero | bl) ? branch_sum : pc_plus_1;
 	assign new_pc_address2 = (branch == 0) ? new_pc_address1 : {pc_plus_1[15:12], instruction[11:0]};
 	assign new_pc_address3 = (br == 0) ? new_pc_address2 : read_data1;
 
