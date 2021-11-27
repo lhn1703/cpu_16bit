@@ -26,7 +26,7 @@ Custom CPU Architecture design inspired by MIPS and ARM
 -	br	  rs               
 -	beq	  rt, rs, label(4 bit signed imm)
 
-# Assembler instructions
+# Assembly Instructions
 - make a .txt assembly file with the instructions listed above and run the assembler.cpp file
 - the assembler does not support comments 
 - the assembler only parses decimal immediate values (can also parse negative sign)
