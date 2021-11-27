@@ -32,3 +32,12 @@ assembler/Debug/assembler.tlog/link.write.1.tlog
 assembler/Debug/vc142.idb
 assembler/Debug/vc142.pdb
 assembler/Debug/assembler.vcxproj.FileListAbsolute.txt
+*.vcxproj
+*.filters
+*.user
+*.recipe
+*.obj
+*.lastbuildstate
+*.tlog
+*.idb
+*.pdb
