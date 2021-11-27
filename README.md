@@ -16,12 +16,12 @@ Custom CPU Architecture design inspired by MIPS and ARM
 -	or	  rd, rs, rt
 -	xor 	rd, rs, rt
 -	not	  rd, rs
--	slt	  rd, rs, rt //set if less than
--	lsl	  rd, rs, imm(4 bit) //logical shift left
--	lsr	  rd, rs, imm(4 bit) //logical shift right
--	ldr	  rt, rs, offset //load halfword
--	str	  rt, rs, offset //store halfword
--	b	    label(12 bit imm) //branch
--	bl	  label(8 bit imm) //branch and link
--	br	  rs //branch return to rs, usually to lr
+-	slt	  rd, rs, rt                      //set if less than
+-	lsl	  rd, rs, imm(4 bit)              //logical shift left
+-	lsr	  rd, rs, imm(4 bit)              //logical shift right
+-	ldr	  rt, rs, offset                  //load halfword
+-	str	  rt, rs, offset                  //store halfword
+-	b	    label(12 bit imm)               //branch
+-	bl	  label(8 bit imm)                //branch and link
+-	br	  rs                              //branch return to rs, usually to lr
 -	beq	  rt, rs, label(4 bit signed imm) //branch on equal
