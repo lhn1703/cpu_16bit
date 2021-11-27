@@ -42,10 +42,11 @@ int main()
 
 	ifstream fin;
 	ofstream fout;
+	ofstream fout2;
 
 	//string inputFile = "input.txt", outputFile = "output.txt";
-	string inputFile, outputFile;
-
+	string inputFile, outputFile, outputFile2;
+	outputFile2 = "output.txt";
 	cout << "Enter input file name: ";
 	cin >> inputFile;
 
@@ -58,6 +59,7 @@ int main()
 
 	outputFile = inputFile.substr(0, inputFile.size() - 4) + "_machine_code.txt";
 	fout.open(outputFile);
+	fout2.open(outputFile2);
 	
 	vector<pair<string, int>> labelList;
 	string line;
@@ -172,8 +174,12 @@ int main()
 		else
 			machineCode += params[1] + "_" + params[2] + "_" + params[0];
 		fout << machineCode << endl;
+		fout2 << machineCode << endl;
 	}
 	cout << "Assembly successfully converted into machine code. Check " + outputFile + "\n";
+	fin.close();
+	fout.close();
+	fout2.close();
 	return 0;
 }
 
