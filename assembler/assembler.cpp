@@ -120,6 +120,11 @@ int main()
 				{
 					if (isImm(temp)) //push immediate values
 					{
+						if (stoi(temp) > 7 || stoi(temp) < -8)
+						{
+							cout << "Invalid 4 bit literal for: " + temp + ".\n";
+							exit(4);
+						}
 						params.push_back(bitset<4>(stoi(temp)).to_string());
 					}
 					else //push label or raise exception
@@ -196,6 +201,8 @@ bool isImm(string s)
 {
 	for (char c : s)
 	{
+		if (s[0] == '-')
+			continue;
 		if (!isdigit(c))
 			return false;
 	}
