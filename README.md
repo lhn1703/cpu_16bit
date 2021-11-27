@@ -5,7 +5,7 @@ Custom CPU Architecture design inspired by MIPS and ARM
 # Registers and Memory
 - 13 general purpose regisers r0 to r12
 - r_zero: immutable register containing 16'b0
-- sp: initialized to the address of the highest 3/4ths of the data memory
+- sp: initialized to the address of the highest 3/4ths of the data memory, incremented by 1
 - lr: updated when executing a bl instruction
 
 # Instruction List 
@@ -17,11 +17,11 @@ Custom CPU Architecture design inspired by MIPS and ARM
 -	xor 	rd, rs, rt
 -	not	  rd, rs
 -	slt	  rd, rs, rt //set if less than
--	lsl	  rd, rs, imm(4 bit)
--	lsr	  rd, rs, imm(4 bit)
--	ldr	  rt, rs, offset
--	str	  rt, rs, offset
--	b	    label(12 bit imm)
--	bl	  label(8 bit imm)
--	br	  rs
--	beq	  rt, rs, label(4 bit signed imm)
+-	lsl	  rd, rs, imm(4 bit) //logical shift left
+-	lsr	  rd, rs, imm(4 bit) //logical shift right
+-	ldr	  rt, rs, offset //load halfword
+-	str	  rt, rs, offset //store halfword
+-	b	    label(12 bit imm) //branch
+-	bl	  label(8 bit imm) //branch and link
+-	br	  rs //branch return to rs, usually to lr
+-	beq	  rt, rs, label(4 bit signed imm) //branch on equal
