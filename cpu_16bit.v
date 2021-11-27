@@ -73,7 +73,7 @@ module cpu_16bit (input [15:0] instruction_in, load_address, input load_instruct
         read_data1, read_data2,
 	    read_reg1, read_reg2, write_reg,
 	    reg_write_data,
-	    reg_write, clk
+	    reg_write, clk, pc_reset
 	);	
 
 	data_memory u_data_mem (
