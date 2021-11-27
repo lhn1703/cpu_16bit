@@ -11,7 +11,7 @@ module cpu_16bit_tb();
 	
 	initial begin
 		load_instruction = 1;
-		file = $fopen("assembler/assembler/output.txt", "r");
+		file = $fopen("assembler/output.txt", "r");
 		while(!$feof(file)) begin
 			$fscanf(file, "%b\n", instruction_in);
 			#10;
