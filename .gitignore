@@ -8,7 +8,7 @@
 transcript
 !assembler
 assembler/**.vs
-assembler/Debug/.
+assembler/Debug
 assembler/**.sln
 !assembler/assembler.cpp
 !assembler/input.txt
