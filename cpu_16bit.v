@@ -53,7 +53,7 @@ module cpu_16bit (input [15:0] instruction_in, load_address, input load_instruct
 	
 	add_1 u_add_1 (pc_plus_1, pc_address);
 	
-	cla_16 branch_add (branch_sum, 0'b0, pc_plus_1, sign_extend16);
+	cla_16 branch_add (branch_sum, 1'b0, pc_plus_1, sign_extend16);
 	
 	alu u_alu (zero, ALU_out, a, b, alu_op);
 	

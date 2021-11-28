@@ -2,7 +2,7 @@
 `define output_group {reg_dst, branch, beq, bl, br, mem_to_reg, mem_read, mem_write, alu_src, reg_write, alu_op}
 module controls (
 	output reg reg_dst, branch, beq, bl, br, mem_to_reg,
-	mem_read, mem_write, alu_src, reg_write, [3:0] alu_op,
+	mem_read, mem_write, alu_src, reg_write, output reg [3:0] alu_op,
 	input [3:0] opcode
 	);
 	always @ (opcode) begin

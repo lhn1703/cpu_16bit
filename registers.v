@@ -12,10 +12,11 @@ module registers(
 	assign read_data1 = register_mem[read_reg1];
 	assign read_data2 = register_mem[read_reg2];
 	always @ (posedge clk or posedge reset) begin
-		if (reset)
+		if (reset) begin
 			register_mem[`sp] <= `sp_initial_address;
-		register_mem[`r_zero] <= 0;
-		if (reg_write && write_reg != `r_zero)
+			register_mem[`r_zero] <= 0;
+		end
+		else if (reg_write && (write_reg != `r_zero))
 			register_mem[write_reg] <= write_data;
 	end
 	

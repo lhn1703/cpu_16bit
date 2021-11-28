@@ -1,18 +1,18 @@
 
 `include "macro_defines.v"
 
-module alu(output zero, reg [15:0] out, input [15:0] a, [15:0] b, [3:0] op);
+module alu(output zero, output reg [15:0] out, input [15:0] a, b, input [3:0] op);
 	assign zero = (out == 16'b0) ? 1'b1 : 1'b0;
 	
 	wire [15:0] sum, b_sel;
 	wire c_in;
 	assign c_in = op[0];
 	assign b_sel = b ^ {16{c_in}};
-	cla_16 adder(.s(sum), .c_in, .a, .b(b_sel));
+	cla_16 adder(.s(sum), .c_in(c_in), .a(a), .b(b_sel));
 	
 	wire [15:0] shifted;
 	reg left;
-	barrel_shift shifter(.out(shifted), .a, .b, .left);
+	barrel_shift shifter(.out(shifted), .a(a), .b(b), .left(left));
 	
 	always @(*) begin
 		case(op)
