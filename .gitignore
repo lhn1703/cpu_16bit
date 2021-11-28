@@ -93,3 +93,5 @@ incremental_db/README
 *.xrf
 db/cpu_16bit.lpc.txt
 db/cpu_16bit.smart_action.txt
+*.nvd
+*.qws
