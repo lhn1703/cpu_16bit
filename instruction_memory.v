@@ -11,7 +11,8 @@ module instruction_memory
 	reg [15:0] mem [0:`data_size];
 
 	always @ (*) begin
-		instruction_out = mem[address];
+		if (instruction_write == 1'b0)
+			instruction_out = mem[address];
 	end
 
 	always @ (posedge clk) begin

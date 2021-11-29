@@ -20,7 +20,7 @@
 ## PROGRAM "Quartus Prime"
 ## VERSION "Version 20.1.1 Build 720 11/11/2020 SJ Lite Edition"
 
-## DATE    "Mon Nov 29 13:51:11 2021"
+## DATE    "Mon Nov 29 14:59:39 2021"
 
 ##
 ## DEVICE  "5CSEMA5F31C6"
@@ -39,7 +39,7 @@ set_time_format -unit ns -decimal_places 3
 # Create Clock
 #**************************************************************
 
-create_clock -name {clk} -period 10.000 -waveform { 0.000 5.000 } [get_ports {clk}]
+create_clock -name {clk} -period 20.000 -waveform { 0.000 10.000 } [get_ports { clk }]
 
 
 #**************************************************************
@@ -58,6 +58,14 @@ create_clock -name {clk} -period 10.000 -waveform { 0.000 5.000 } [get_ports {cl
 # Set Clock Uncertainty
 #**************************************************************
 
+set_clock_uncertainty -rise_from [get_clocks {clk}] -rise_to [get_clocks {clk}] -setup 0.170  
+set_clock_uncertainty -rise_from [get_clocks {clk}] -rise_to [get_clocks {clk}] -hold 0.060  
+set_clock_uncertainty -rise_from [get_clocks {clk}] -fall_to [get_clocks {clk}] -setup 0.170  
+set_clock_uncertainty -rise_from [get_clocks {clk}] -fall_to [get_clocks {clk}] -hold 0.060  
+set_clock_uncertainty -fall_from [get_clocks {clk}] -rise_to [get_clocks {clk}] -setup 0.170  
+set_clock_uncertainty -fall_from [get_clocks {clk}] -rise_to [get_clocks {clk}] -hold 0.060  
+set_clock_uncertainty -fall_from [get_clocks {clk}] -fall_to [get_clocks {clk}] -setup 0.170  
+set_clock_uncertainty -fall_from [get_clocks {clk}] -fall_to [get_clocks {clk}] -hold 0.060  
 
 
 #**************************************************************
