@@ -1,10 +1,12 @@
-module cpu_16bit (input [15:0] instruction_in, load_address, input load_instruction, clk, pc_reset);
+module cpu_16bit (output test, input [15:0] instruction_in, load_address, input load_instruction, clk, pc_reset);
     //Branching
 	wire [15:0] pc_plus_1, branch_sum;
 	wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
 	
 	//IF: pc + instr mem
     wire [15:0] pc_address, new_pc_address, instruction;
+	
+	assign test = instruction;
     
     //IF: controls 
     wire reg_dst, branch, beq, bl, br, mem_to_reg;
