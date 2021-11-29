@@ -6,7 +6,7 @@ module cpu_16bit (output test, input [15:0] instruction_in, load_address, input 
 	//IF: pc + instr mem
     wire [15:0] pc_address, new_pc_address, instruction;
 	
-	assign test = instruction;
+	assign test = instruction[0];
     
     //IF: controls 
     wire reg_dst, branch, beq, bl, br, mem_to_reg;
