@@ -49,7 +49,7 @@ module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
 
 	//WB: write back
 	assign reg_write_data = write_back2;
-	assign new_pc_address = new_pc_address3; //bug
+	assign new_pc_address = new_pc_address3; 
 	
 	add_1 u_add_1 (pc_plus_1, pc_address);
 	

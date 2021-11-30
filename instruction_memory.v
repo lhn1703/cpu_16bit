@@ -6,7 +6,7 @@ module instruction_memory
 	input clk, reset 
 	);
 
-	reg delayed_reset;
+	//reg delayed_reset;
 	reg [15:0] rom [0:`data_size];
 
 	initial begin
@@ -14,14 +14,13 @@ module instruction_memory
 	end
 
 	always @ (posedge clk) begin
-		if (reset) begin
-			//instruction_out <= rom[0];
-			delayed_reset <= 1;
-		end
-		else if (delayed_reset) begin
+		if (reset)
 			instruction_out <= rom[0];
-			delayed_reset <= 0;
-		end
+		//	delayed_reset <= 1;
+		//else if (delayed_reset) begin
+		//	instruction_out <= rom[0];
+		//	delayed_reset <= 0;
+		//end
 		else
 			instruction_out <= rom[address];
 	end
