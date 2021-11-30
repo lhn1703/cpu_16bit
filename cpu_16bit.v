@@ -1,4 +1,4 @@
-module cpu_16bit (output test, input [15:0] instruction_in, load_address, input load_instruction, clk, pc_reset);
+module cpu_16bit (output [15:0] result_reg, input [15:0] instruction_in, load_address, input load_instruction, clk, pc_reset);
     //Branching
 	wire [15:0] pc_plus_1, branch_sum;
 	wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
@@ -6,8 +6,6 @@ module cpu_16bit (output test, input [15:0] instruction_in, load_address, input 
 	//IF: pc + instr mem
     wire [15:0] pc_address, new_pc_address, instruction;
 	
-	assign test = instruction[0];
-    
     //IF: controls 
     wire reg_dst, branch, beq, bl, br, mem_to_reg;
 	wire mem_read, mem_write, alu_src, reg_write; 
@@ -72,7 +70,7 @@ module cpu_16bit (output test, input [15:0] instruction_in, load_address, input 
 	);
 
     registers u_regs (	
-        read_data1, read_data2,
+        read_data1, read_data2, result_reg,
 	    read_reg1, read_reg2, write_reg,
 	    reg_write_data,
 	    reg_write, clk, pc_reset

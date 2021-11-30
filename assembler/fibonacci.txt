@@ -9,4 +9,5 @@ loop:	add r2, r1, r0;
 		addi r4, r4, 1;
 		beq	r4, r3, end;
 		b loop;
-end:	b end;
+end:	add r0, r_zero, r2;
+		b end;

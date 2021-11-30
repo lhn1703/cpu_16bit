@@ -1,7 +1,9 @@
-*.mti
-*.mpf
-*.bak
-*.wlf
+**.mti
+**.mpf
+**.bak
+**.wlf
+**.bak
+**.json
 **/.vs/
 **/.vscode/
 **/work/
@@ -95,3 +97,4 @@ db/cpu_16bit.lpc.txt
 db/cpu_16bit.smart_action.txt
 *.nvd
 *.qws
+*.tdf
