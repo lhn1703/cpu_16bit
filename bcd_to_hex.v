@@ -1,10 +1,10 @@
-module de1_test (output [6:0] HEX0, input [3:0] SW);
+module bcd_to_hex (output [6:0] hex_output, input [3:0] bcd_digit);
 	reg [6:0] invertedHex;
-	assign HEX0 = ~invertedHex;
+	assign hex_output = ~invertedHex; //FPGA hex LEDs are enable LOW
 	
-	always @ (*) begin
-		case(SW) 
-			0:invertedHex = 7'b0111111;	
+	always @ (*) begin 
+		case(bcd_digit) 
+			0:invertedHex = 7'h7E;	
 			1:invertedHex = 7'h06;
 			2:invertedHex = 7'h5B;
 			3:invertedHex = 7'h4F;
