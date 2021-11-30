@@ -1,9 +1,9 @@
-**mti
-**mpf
-**bak
+**.mti
+**.mpf
+**.bak
 **.wlf
 **.bak
-**json
+**.json
 **/.vs/
 **/.vscode/
 **/work/
@@ -98,3 +98,5 @@ db/cpu_16bit.smart_action.txt
 *.nvd
 *.qws
 *.tdf
+c5_pin_model_dump.txt
+vish_stacktrace.vstf
