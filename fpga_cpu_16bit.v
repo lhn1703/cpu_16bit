@@ -3,7 +3,7 @@ module fpga_cpu_16bit (
     input KEY, clk //whenever KEY[0] is pushed, the cpu will reset
     );
 
-    wire [15;0] result_reg;
+    wire [15:0] result_reg;
     wire negative;
     wire [3:0] bcd_digit0, bcd_digit1, bcd_digit2, bcd_digit3, bcd_digit4;
 
