@@ -11,7 +11,7 @@ module data_memory
 
 	always @ (negedge clk) begin
 		if (mem_read)
-			read_data = mem[address];
+			read_data <= mem[address];
 	end
 
 	always @ (posedge clk) begin

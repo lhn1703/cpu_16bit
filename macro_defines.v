@@ -39,9 +39,9 @@
 
 //memory size of data and instruction memory = 2^16 - 1
 //`define data_size 16'd65535
-`define data_size 16'd1000
+`define data_size 16'd1024
 
 //`define sp_initial_address 16'd49152
-`define sp_initial_address 16'd750
+`define sp_initial_address 16'd768
 
 `endif //_macro_defines_v

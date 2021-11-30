@@ -1,10 +1,13 @@
 module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
     //Branching
 	wire [15:0] pc_plus_1, branch_sum;
-	wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
+	//wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
+	
 	
 	//IF: pc + instr mem
-    wire [15:0] pc_address, new_pc_address, instruction;
+    //wire [15:0] pc_address, new_pc_address, instruction;
+	wire [15:0] pc_address, instruction;
+	reg [15:0] new_pc_address;
 	
     //IF: controls 
     wire reg_dst, branch, beq, bl, br, mem_to_reg;
@@ -33,6 +36,17 @@ module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
     wire [3:0] ALU_op;
 	assign a = read_data1;
 	assign b = (alu_src == 0) ? read_data2 : sign_extend16;
+
+	always @ (*) begin //unrolling the cascaded muxes for performance
+		if ((beq&zero | bl) & ~branch  &~br)
+			new_pc_address = branch_sum;
+		else if ((~beq | ~zero)&(~bl) & ~branch & ~br)
+			new_pc_address = pc_plus_1;
+		else if (branch)
+			new_pc_address = {pc_plus_1[15:12], instruction[11:0]};
+		else
+			new_pc_address = read_data1;
+	end
 	
 	//MEM: data memory
 	wire [15:0] read_data;
@@ -43,14 +57,14 @@ module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
 	assign write_back1 = (mem_to_reg == 0) ? ALU_out : read_data;
 	assign write_back2 = (bl == 0) ? write_back1 : pc_plus_1;
 	
-	assign new_pc_address1 = (beq&zero | bl) ? branch_sum : pc_plus_1;
+	/*assign new_pc_address1 = (beq&zero | bl) ? branch_sum : pc_plus_1;
 	assign new_pc_address2 = (branch == 0) ? new_pc_address1 : {pc_plus_1[15:12], instruction[11:0]};
-	assign new_pc_address3 = (br == 0) ? new_pc_address2 : read_data1;
+	assign new_pc_address3 = (br == 0) ? new_pc_address2 : read_data1;*/
 
 	//WB: write back
 	assign reg_write_data = write_back2;
-	assign new_pc_address = new_pc_address3; 
-	
+	//assign new_pc_address = new_pc_address3; 
+
 	add_1 u_add_1 (pc_plus_1, pc_address);
 	
 	cla_16 branch_add (branch_sum, 1'b0, pc_plus_1, sign_extend16);
