@@ -3,7 +3,7 @@ module pc (
 	input [15:0] new_address,
 	input clk, reset
 	);
-	always @ (posedge clk)
+	always @ (posedge clk or posedge reset)
 		if (reset)
 			pc_address <= 0;
 		else

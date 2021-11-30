@@ -1,4 +1,4 @@
-module cpu_16bit (output [15:0] result_reg, input [15:0] instruction_in, load_address, input load_instruction, clk, pc_reset);
+module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
     //Branching
 	wire [15:0] pc_plus_1, branch_sum;
 	wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
@@ -49,7 +49,7 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] instruction_in, load_ad
 
 	//WB: write back
 	assign reg_write_data = write_back2;
-	assign new_pc_address = new_pc_address3;
+	assign new_pc_address = new_pc_address3; //bug
 	
 	add_1 u_add_1 (pc_plus_1, pc_address);
 	
@@ -60,7 +60,7 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] instruction_in, load_ad
     pc u_pc (pc_address, new_pc_address, clk, pc_reset);
 	
     instruction_memory u_instr_mem (
-        instruction, pc_address, instruction_in, load_address, load_instruction, clk
+        instruction, pc_address, clk, pc_reset
     );
 
     controls u_control (

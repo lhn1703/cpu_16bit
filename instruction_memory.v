@@ -3,49 +3,26 @@ module instruction_memory
 	(
 	output reg [15:0] instruction_out,
 	input [15:0] address,
-	input [15:0] instruction_in,
-	input [15:0] load_address,
-	input instruction_write, clk 
+	input clk, reset 
 	);
 
-	reg [15:0] mem [0:`data_size];
+	reg delayed_reset;
+	reg [15:0] rom [0:`data_size];
 
-	always @ (negedge clk) begin
-		if (~instruction_write)
-			instruction_out <= mem[address];
-	end
-
-	always @ (posedge clk) begin
-		if (instruction_write)
-			mem[load_address] <= instruction_in;		
-	end	
-endmodule
-
-// Quartus Prime Verilog Template
-// Single Port ROM
-/*
-module instruction_memory
-#(parameter DATA_WIDTH=16, parameter ADDR_WIDTH=16)
-(
-	output reg [15:0] instruction_out,
-	input [15:0] address,
-	input [15:0] instruction_in,
-	input [15:0] load_address,
-	input instruction_write, clk 
-);
-
-	// Declare the ROM variable
-	//reg [DATA_WIDTH-1:0] rom[2**ADDR_WIDTH-1:0];
-	reg [15:0] mem [0:2**16];
-
-	initial
-	begin
+	initial begin
 		$readmemb("assembler/output.txt", rom);
 	end
 
-	always @ (posedge clk)
-	begin
-		q <= rom[addr];
+	always @ (posedge clk) begin
+		if (reset) begin
+			//instruction_out <= rom[0];
+			delayed_reset <= 1;
+		end
+		else if (delayed_reset) begin
+			instruction_out <= rom[0];
+			delayed_reset <= 0;
+		end
+		else
+			instruction_out <= rom[address];
 	end
-
-endmodule*/
+endmodule
