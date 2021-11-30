@@ -60,7 +60,7 @@ module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
     pc u_pc (pc_address, new_pc_address, clk, pc_reset);
 	
     instruction_memory u_instr_mem (
-        instruction, pc_address, clk, pc_reset
+        instruction, pc_address, clk
     );
 
     controls u_control (
