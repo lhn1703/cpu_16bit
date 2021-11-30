@@ -74,7 +74,7 @@ int main()
 		{
 			temp.pop_back();
 			labelList.push_back(make_pair(temp, instructionAddress));
-			cout << temp + "_" + to_string(instructionAddress) + "\n";
+			cout << temp + to_string(instructionAddress) + "\n";
 			instructionAddress++;
 			continue;
 		}
@@ -105,7 +105,7 @@ int main()
 			if (!opcodeSeen) //excluding label, the first string detected must be the opcode
 			{
 				instruction = temp;
-				machineCode += getOpcode(opcodeList, temp) + "_";
+				machineCode += getOpcode(opcodeList, temp);
 				opcodeSeen = true;
 			}
 			else if (temp.back() == ',' || temp.back() == ';') //if is not the opcode then it is a parameter
@@ -166,13 +166,13 @@ int main()
 		else if (instruction == "b")
 			machineCode += params[0];
 		else if (instruction == "bl")
-			machineCode += params[0] + "_" + getRegister(registerList, "lr");
+			machineCode += params[0] + getRegister(registerList, "lr");
 		else if (instruction == "br")
 			machineCode += params[0] + "_0000_0000";
 		else if (instruction == "beq" || instruction == "ldr" || instruction == "str" || instruction == "addi" || instruction == "lsl" || instruction == "lsr")
-			machineCode += params[1] + "_" + params[0] + "_" + params[2];
+			machineCode += params[1] + params[0] + params[2];
 		else
-			machineCode += params[1] + "_" + params[2] + "_" + params[0];
+			machineCode += params[1] + params[2] + params[0];
 		fout << machineCode << endl;
 		fout2 << machineCode << endl;
 	}
