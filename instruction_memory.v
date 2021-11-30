@@ -7,11 +7,12 @@ module instruction_memory
 	input [15:0] load_address,
 	input instruction_write, clk 
 	);
-	
+
 	reg [15:0] mem [0:`data_size];
 
 	always @ (negedge clk) begin
-		instruction_out = mem[address];
+		if (~instruction_write)
+			instruction_out <= mem[address];
 	end
 
 	always @ (posedge clk) begin
