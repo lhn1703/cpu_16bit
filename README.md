@@ -1,4 +1,4 @@
-# 16-Bit Verilog CPU
+# 16-Bit Verilog CPU - DE1-SoC Synthesis Branch
 Custom CPU Architecture design inspired by MIPS and ARM
 ![alt text](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/cpu_architecture.jpeg)
 
