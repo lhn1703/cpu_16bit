@@ -1,11 +1,11 @@
 module hex_decoder (output [6:0] hex_output, input [3:0] bin_digit);
 	reg [6:0] invertedHex;
-	//assign hex_output = ~invertedHex; //FPGA hex LEDs are enable LOW
-	assign hex_output = invertedHex; //FPGA hex LEDs are enable LOW
+	assign hex_output = ~invertedHex; //FPGA hex LEDs are enable LOW
+	//assign hex_output = invertedHex; //FPGA hex LEDs are enable LOW
 	
 	always @ (*) begin 
 		case(bin_digit) 
-			0:invertedHex = 7'h7E;	
+			0:invertedHex = 7'h3F;	
 			1:invertedHex = 7'h06;
 			2:invertedHex = 7'h5B;
 			3:invertedHex = 7'h4F;
