@@ -5,18 +5,16 @@ module fpga_cpu_16bit (
 
     wire [15:0] result_reg;
     wire negative;
-    wire [3:0] digit0, digit1, digit2, digit3, digit4;
+    wire [3:0] digit0, digit1, digit2, digit3;
 
     cpu_16bit u0000(result_reg, clk, KEY);
     bin16_to_hex u0001(
-        negative, 
-        digit0, digit1, digit2, digit3, digit4, 
+        digit0, digit1, digit2, digit3,
         result_reg
     );
     hex_display u0002(
-        HEX0, HEX1, HEX2, HEX3, HEX4, HEX5,
-        negative,
-        digit0, digit1, digit2, digit3, digit4
+        HEX0, HEX1, HEX2, HEX3,
+        digit0, digit1, digit2, digit3
     );
 
 endmodule
