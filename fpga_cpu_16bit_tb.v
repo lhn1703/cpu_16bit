@@ -1,10 +1,12 @@
 
 module fpga_cpu_16bit_tb;
 
-	wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
-	reg KEY = 1, clk = 0;
+	wire [6:0] HEX0, HEX1, HEX2, HEX3;
+	reg [3:0] KEY = 1, clk = 0;
+	wire [6:0] HEX0n, HEX1n, HEX2n, HEX3n;
 
-	fpga_cpu_16bit cpu (HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, KEY, clk);
+	assign {HEX0n, HEX1n, HEX2n, HEX3n} = ~{HEX0, HEX1, HEX2, HEX3};
+	fpga_cpu_16bit cpu (HEX0, HEX1, HEX2, HEX3, KEY, clk);
 	
 	always clk = #5 ~clk;
 	

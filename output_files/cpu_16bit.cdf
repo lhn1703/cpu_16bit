@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Ign)
-		Device PartName(SOCVHPS) MfrSpec(OpMask(0));
+		Device PartName(5CSEMA5F31) MfrSpec(OpMask(0));
 	P ActionCode(Cfg)
 		Device PartName(5CSEMA5F31) Path("C:/Users/L/Documents/GitHub/cpu_16bit/output_files/") File("cpu_16bit.sof") MfrSpec(OpMask(1));
 
