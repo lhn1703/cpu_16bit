@@ -1,4 +1,4 @@
-start:	addi r0, r_zero, r12;
+start:	add r0, r_zero, r12;
 		addi r1, r_zero, 0;
 		addi r2, r_zero, 0;
 		addi r3, r_zero, 1;
@@ -12,4 +12,4 @@ loop2:	addi r2, r2, 1;
 		beq r4, r_zero, loop1;
 		addi r2, r_zero, 0;
 		addi r0, r0, 1;
-		b loop;
+		b loop1;
