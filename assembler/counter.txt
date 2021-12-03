@@ -1,0 +1,6 @@
+start:	addi r0, r_zero, r12;
+		addi r1, r_zero, 0;
+loop:	addi r1, r1, 1;
+		beq r1, r_zero, loop;
+		addi r0, r0, 1;
+		b loop;
