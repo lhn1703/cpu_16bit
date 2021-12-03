@@ -1,7 +1,9 @@
-*.mti
-*.mpf
-*.bak
-*.wlf
+**.mti
+**.mpf
+**.bak
+**.wlf
+**.bak
+**.json
 **/.vs/
 **/.vscode/
 **/work/
@@ -18,6 +20,8 @@ assembler/assembler.vcxproj.filters
 assembler/assembler.vcxproj.user
 assembler/Debug/assembler.exe
 assembler/Debug/assembler.exe.recipe
+**/output_files
+**/db
 *.ilk
 *.log
 assembler/Debug/assembler.obj
@@ -95,3 +99,6 @@ db/cpu_16bit.lpc.txt
 db/cpu_16bit.smart_action.txt
 *.nvd
 *.qws
+*.tdf
+c5_pin_model_dump.txt
+vish_stacktrace.vstf

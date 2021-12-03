@@ -3,20 +3,16 @@ module instruction_memory
 	(
 	output reg [15:0] instruction_out,
 	input [15:0] address,
-	input [15:0] instruction_in,
-	input [15:0] load_address,
-	input instruction_write, clk 
+	input clk 
 	);
-	
-	reg [15:0] mem [0:`data_size];
 
-	always @ (*) begin
-		if (instruction_write == 1'b0)
-			instruction_out = mem[address];
+	reg [15:0] rom [0:`data_size];
+
+	initial begin
+		$readmemb("assembler/output.txt", rom);
 	end
 
-	always @ (posedge clk) begin
-		if (instruction_write)
-			mem[load_address] <= instruction_in;		
-	end	
+	always @ (negedge clk) begin
+		instruction_out <= rom[address];
+	end
 endmodule

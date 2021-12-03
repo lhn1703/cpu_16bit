@@ -1,6 +1,6 @@
-# 16-Bit Verilog CPU - ModelSim Simulation Branch
+# 16-Bit Verilog CPU - DE1-SoC Synthesis Branch
 Custom CPU Architecture design inspired by MIPS and ARM
-![alt text](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/cpu_architecture.jpeg)
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/CPU.png)
 
 # Registers and Memory
 - 13 general purpose regisers r0 to r12
@@ -33,3 +33,21 @@ Custom CPU Architecture design inspired by MIPS and ARM
 - labels must be terminated with a semicolon (":")
 - the beq can only branch to a label within 8 preceding instsructions or 7 following instructions 
 - use auxiliary branches to implement further beq branches
+
+# Datapaths
+- R-type Instruction
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/r-type.png)
+- I-type Instruction
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/i-type.png)
+- LDR Instruction
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/ldr.png)
+- STR Instruction
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/str.png)
+- Branch Instruction
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/branch.png)
+- Branch and Link Instruction
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/bl.png)
+- Branch Return Instruction
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/br.png)
+- Branch if Equal Instruction
+![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/beq.png)

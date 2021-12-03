@@ -1,13 +1,16 @@
-module cpu_16bit (output test, input [15:0] instruction_in, load_address, input load_instruction, clk, pc_reset);
+module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
     //Branching
 	wire [15:0] pc_plus_1, branch_sum;
-	wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
+	reg [15:0] pc_plus_1_reg;
+	always @(negedge clk) pc_plus_1_reg <= pc_plus_1; //discount pipelining for branches
+	//wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
+	
 	
 	//IF: pc + instr mem
-    wire [15:0] pc_address, new_pc_address, instruction;
+    //wire [15:0] pc_address, new_pc_address, instruction;
+	wire [15:0] pc_address, instruction;
+	reg [15:0] new_pc_address;
 	
-	assign test = instruction[0];
-    
     //IF: controls 
     wire reg_dst, branch, beq, bl, br, mem_to_reg;
 	wire mem_read, mem_write, alu_src, reg_write; 
@@ -35,6 +38,17 @@ module cpu_16bit (output test, input [15:0] instruction_in, load_address, input 
     wire [3:0] ALU_op;
 	assign a = read_data1;
 	assign b = (alu_src == 0) ? read_data2 : sign_extend16;
+
+	always @ (*) begin //unrolling the cascaded muxes for performance
+		if ((beq&zero | bl) & ~branch  &~br)
+			new_pc_address = branch_sum;
+		else if ((~beq | ~zero)&(~bl) & ~branch & ~br)
+			new_pc_address = pc_plus_1_reg;
+		else if (branch)
+			new_pc_address = {pc_plus_1_reg[15:12], instruction[11:0]};
+		else
+			new_pc_address = read_data1;
+	end
 	
 	//MEM: data memory
 	wire [15:0] read_data;
@@ -43,26 +57,26 @@ module cpu_16bit (output test, input [15:0] instruction_in, load_address, input 
 	assign mem_address = ALU_out;
 	assign mem_write_data = read_data2;
 	assign write_back1 = (mem_to_reg == 0) ? ALU_out : read_data;
-	assign write_back2 = (bl == 0) ? write_back1 : pc_plus_1;
+	assign write_back2 = (bl == 0) ? write_back1 : pc_plus_1_reg;
 	
-	assign new_pc_address1 = (beq&zero | bl) ? branch_sum : pc_plus_1;
+	/*assign new_pc_address1 = (beq&zero | bl) ? branch_sum : pc_plus_1;
 	assign new_pc_address2 = (branch == 0) ? new_pc_address1 : {pc_plus_1[15:12], instruction[11:0]};
-	assign new_pc_address3 = (br == 0) ? new_pc_address2 : read_data1;
+	assign new_pc_address3 = (br == 0) ? new_pc_address2 : read_data1;*/
 
 	//WB: write back
 	assign reg_write_data = write_back2;
-	assign new_pc_address = new_pc_address3;
-	
+	//assign new_pc_address = new_pc_address3; 
+
 	add_1 u_add_1 (pc_plus_1, pc_address);
 	
-	cla_16 branch_add (branch_sum, 1'b0, pc_plus_1, sign_extend16);
+	cla_16 branch_add (branch_sum, 1'b0, pc_plus_1_reg, sign_extend16);
 	
 	alu u_alu (zero, ALU_out, a, b, alu_op);
 	
     pc u_pc (pc_address, new_pc_address, clk, pc_reset);
 	
     instruction_memory u_instr_mem (
-        instruction, pc_address, instruction_in, load_address, load_instruction, clk
+        instruction, pc_address, clk
     );
 
     controls u_control (
@@ -72,7 +86,7 @@ module cpu_16bit (output test, input [15:0] instruction_in, load_address, input 
 	);
 
     registers u_regs (	
-        read_data1, read_data2,
+        read_data1, read_data2, result_reg,
 	    read_reg1, read_reg2, write_reg,
 	    reg_write_data,
 	    reg_write, clk, pc_reset
