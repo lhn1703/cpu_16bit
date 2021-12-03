@@ -102,3 +102,8 @@ db/cpu_16bit.smart_action.txt
 *.tdf
 c5_pin_model_dump.txt
 vish_stacktrace.vstf
+db/de1_cpu_16bit.lpc.txt
+db/de1_cpu_16bit.ram0_instruction_memory_68fd8bb8.hdl.mif
+db/de1_cpu_16bit.smart_action.txt
+output_files/de1_cpu_16bit.cdf
+output_files/de1_cpu_16bit.sdc
