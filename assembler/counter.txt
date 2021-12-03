@@ -1,6 +1,14 @@
 start:	addi r0, r_zero, r12;
 		addi r1, r_zero, 0;
+		addi r2, r_zero, 0;
+		addi r3, r_zero, 1;
+		lsl r3, r3, 5;
+		lsl r3, r3, 5;
 loop:	addi r1, r1, 1;
 		beq r1, r_zero, loop;
+		addi r2, r2, 1;
+		slt r4, r2, r3;
+		beq r4, r_zero, loop;
+		addi r2, r_zero, 0;
 		addi r0, r0, 1;
 		b loop;
