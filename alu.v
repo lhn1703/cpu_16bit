@@ -8,11 +8,12 @@ module alu(output zero, output reg [15:0] out, input [15:0] a, b, input [3:0] op
 	wire c_in;
 	assign c_in = op[0];
 	assign b_sel = b ^ {16{c_in}};
-	cla_16 adder(.s(sum), .c_in(c_in), .a(a), .b(b_sel));
+	cla_16 adder(sum, c_in, a, b_sel);
 	
 	wire [15:0] shifted;
-	reg left;
-	barrel_shift shifter(.out(shifted), .a(a), .b(b), .left(left));
+	wire left;
+	assign left = (op == 4'd12);
+	barrel_shift shifter(shifted, left, a, b);
 	
 	always @(*) begin
 		case(op)
