@@ -1,4 +1,4 @@
-start:		addi r1, r_zero, 5;
+start:		add r1, r_zero, r12;
 			addi r4, r_zero, 1;
 			addi r0, r_zero, 0;
 			bl func;
