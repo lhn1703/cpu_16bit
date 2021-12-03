@@ -1,6 +1,6 @@
 # 16-Bit Verilog CPU - DE1-SoC Synthesis Branch
 Custom CPU Architecture design inspired by MIPS and ARM
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/CPU.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/CPU.png)
 
 # Registers and Memory
 - 13 general purpose regisers r0 to r12
@@ -36,18 +36,18 @@ Custom CPU Architecture design inspired by MIPS and ARM
 
 # Datapaths
 - R-type Instruction
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/r-type.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/r-type.png)
 - I-type Instruction
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/i-type.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/i-type.png)
 - LDR Instruction
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/ldr.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/ldr.png)
 - STR Instruction
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/str.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/str.png)
 - Branch Instruction
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/branch.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/branch.png)
 - Branch and Link Instruction
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/bl.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/bl.png)
 - Branch Return Instruction
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/br.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/br.png)
 - Branch if Equal Instruction
-![](https://github.com/lhn1703/cpu_16bit/blob/fpga-de1/documentation/beq.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/beq.png)
