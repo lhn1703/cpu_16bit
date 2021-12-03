@@ -3,7 +3,7 @@
 module registers(
 	output [15:0] read_data1, read_data2, result_reg, //r0 is always result register
 	input [3:0] read_reg1, read_reg2, write_reg,
-	input [15:0] write_data,
+	input [15:0] write_data, initial_input,
 	input reg_write, clk, reset
 	);		
 	
@@ -17,6 +17,7 @@ module registers(
 		if (reset) begin
 			register_mem[`sp] <= `sp_initial_address;
 			register_mem[`r_zero] <= 0;
+			register_mem[`r12] <= initial_input; 
 		end
 		else if (reg_write && (write_reg != `r_zero))
 			register_mem[write_reg] <= write_data;

@@ -1,4 +1,4 @@
-module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
+module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
     //Branching
 	wire [15:0] pc_plus_1, branch_sum;
 	reg [15:0] pc_plus_1_reg;
@@ -88,7 +88,7 @@ module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
     registers u_regs (	
         read_data1, read_data2, result_reg,
 	    read_reg1, read_reg2, write_reg,
-	    reg_write_data,
+	    reg_write_data, initial_input,
 	    reg_write, clk, pc_reset
 	);	
 
