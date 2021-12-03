@@ -20,6 +20,8 @@ assembler/assembler.vcxproj.filters
 assembler/assembler.vcxproj.user
 assembler/Debug/assembler.exe
 assembler/Debug/assembler.exe.recipe
+**/output_files
+**/db
 *.ilk
 *.log
 assembler/Debug/assembler.obj
