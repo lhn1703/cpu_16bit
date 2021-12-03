@@ -162,13 +162,13 @@ int main()
 
 		//writes the machine code to the file
 		if (instruction == "not")
-			machineCode += params[1] + "_0000_" + params[0];
+			machineCode += params[1] + "0000" + params[0];
 		else if (instruction == "b")
 			machineCode += params[0];
 		else if (instruction == "bl")
 			machineCode += params[0] + getRegister(registerList, "lr");
 		else if (instruction == "br")
-			machineCode += params[0] + "_0000_0000";
+			machineCode += params[0] + "00000000";
 		else if (instruction == "beq" || instruction == "ldr" || instruction == "str" || instruction == "addi" || instruction == "lsl" || instruction == "lsr")
 			machineCode += params[1] + params[0] + params[2];
 		else
