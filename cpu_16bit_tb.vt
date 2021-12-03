@@ -1,16 +1,22 @@
 
 module cpu_16bit_tb();
-	reg pc_reset = 1, clk = 0;
+	reg [15:0] initial_input = 0;
+	reg pc_reset = 0, clk = 0;
 	wire [15:0] result_reg;
 	always clk = #5 ~clk;
 	
-	cpu_16bit u_cpu(result_reg, clk, pc_reset);
+	cpu_16bit u_cpu(result_reg, initial_input, clk, pc_reset);
 
 	integer file;
 	integer i = 0;
 	
 	initial begin
-		#10;
-		pc_reset = 0;
+		for (i=0; i<10; i=i+1) begin
+			pc_reset = 1;
+			initial_input = i;
+			#20;
+			pc_reset = 0;
+			#980;
+		end
 	end
 endmodule
