@@ -2,7 +2,7 @@ module cpu_16bit (output [15:0] result_reg, input clk, pc_reset);
     //Branching
 	wire [15:0] pc_plus_1, branch_sum;
 	reg [15:0] pc_plus_1_reg;
-	always @(negedge clk) pc_plus_1_reg <= pc_plus_1;
+	always @(negedge clk) pc_plus_1_reg <= pc_plus_1; //discount pipelining for branches
 	//wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
 	
 	
