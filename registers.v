@@ -13,7 +13,7 @@ module registers(
 	assign read_data2 = register_mem[read_reg2];
 	assign result_reg = register_mem[`r0];
 
-	always @ (posedge clk or posedge reset) begin
+	always @ (negedge clk or posedge reset) begin
 		if (reset) begin
 			register_mem[`sp] <= `sp_initial_address;
 			register_mem[`r_zero] <= 0;

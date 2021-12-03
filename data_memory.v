@@ -9,7 +9,7 @@ module data_memory
 	
 	reg [15:0] mem [0:`data_size];
 
-	always @ (negedge clk) begin
+	always @ (posedge clk) begin
 		if (mem_read)
 			read_data <= mem[address];
 	end
