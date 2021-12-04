@@ -1,9 +1,10 @@
 
-`timescale 1ns/100ps;
+`timescale 1ns/100ps
 module cpu_16bit_tb();
 	reg [15:0] initial_input = 0;
 	reg pc_reset = 0, clk = 0;
 	wire [15:0] result_reg;
+	
 	always clk = #7 ~clk;
 	
 	cpu_16bit u_cpu(result_reg, initial_input, clk, pc_reset);
@@ -11,10 +12,13 @@ module cpu_16bit_tb();
 	integer file;
 	integer i = 0;
 	
-	initial begin
+	reg [4:0] a, b;
+	always begin
 		pc_reset = 1;
-		initial_input = 10;
+		initial_input = $random % 2**16;
+		{a, b} = initial_input[9:0];
 		#20;
 		pc_reset = 0;
+		#2980;
 	end
 endmodule
