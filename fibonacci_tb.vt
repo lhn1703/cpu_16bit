@@ -1,6 +1,6 @@
 
 `timescale 1ns/100ps
-module cpu_16bit_tb();
+module fibonacci_tb();
 	reg [15:0] initial_input = 0;
 	reg pc_reset = 0, clk = 0;
 	wire [15:0] result_reg;
@@ -8,17 +8,12 @@ module cpu_16bit_tb();
 	always clk = #7 ~clk;
 	
 	cpu_16bit u_cpu(result_reg, initial_input, clk, pc_reset);
-
-	integer file;
-	integer i = 0;
 	
-	reg [4:0] a, b;
 	always begin
 		pc_reset = 1;
-		initial_input = $random % 2**10;
-		{a, b} = initial_input[9:0];
+		initial_input = $urandom % 20;
 		#20;
 		pc_reset = 0;
-		#2980;
+		#1980;
 	end
 endmodule
