@@ -11,9 +11,23 @@ module recursive_tb();
 	
 	always begin
 		pc_reset = 1;
-		initial_input = $urandom % 20;
+		initial_input = 7;
 		#20;
 		pc_reset = 0;
-		#4980;
+		#39980;
+		pc_reset = 1;
+		initial_input = 128;
+		#20;
+		pc_reset = 0;
+		#39980;
+		pc_reset = 1;
+		initial_input = 129;
+		#20;
+		pc_reset = 0;
+		#39980;
+		initial_input = 150;
+		#20;
+		pc_reset = 0;
+		#39980;
 	end
 endmodule

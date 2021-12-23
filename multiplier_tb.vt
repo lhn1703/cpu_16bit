@@ -17,5 +17,17 @@ module multiplier_tb();
 		#20;
 		pc_reset = 0;
 		#4980;
+		pc_reset = 1;
+		initial_input = $urandom % 2**10;
+		{a, b} = initial_input[9:0];
+		#20;
+		pc_reset = 0;
+		#4980;
+		pc_reset = 1;
+		initial_input = 16'hFFFF;
+		{a, b} = initial_input[9:0];
+		#20;
+		pc_reset = 0;
+		#4980;
 	end
 endmodule
