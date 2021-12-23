@@ -122,12 +122,22 @@ int main()
 				{
 					if (isImm(temp)) //push immediate values
 					{
-						if (stoi(temp) > 7 || stoi(temp) < -8)
+						if (instruction == "lsl" || instruction == "lsr")
+						{
+							if (stoi(temp) > 15 || stoi(temp) < 0)
+							{
+								cout << "Invalid 4 bit literal for: " + temp + ".\n";
+								exit(4);
+							}
+							params.push_back(bitset<4>(stoi(temp)).to_string());
+						}
+						else if (stoi(temp) > 7 || stoi(temp) < -8)
 						{
 							cout << "Invalid 4 bit literal for: " + temp + ".\n";
 							exit(4);
 						}
-						params.push_back(bitset<4>(stoi(temp)).to_string());
+						else
+							params.push_back(bitset<4>(stoi(temp)).to_string());
 					}
 					else //push label or raise exception
 					{
