@@ -4,11 +4,15 @@
 module alu(output zero, output reg [15:0] out, input [15:0] a, b, input [3:0] op);
 	assign zero = (out == 16'b0) ? 1'b1 : 1'b0;
 	
-	wire [15:0] sum, b_sel;
+	//wire [15:0] sum, b_sel;
+	wire [15:0] sum;
 	wire c_in;
 	assign c_in = op[0];
+	cla_16 adder(sum, c_in, a, b);
+	/*
 	assign b_sel = b ^ {16{c_in}};
 	cla_16 adder(sum, c_in, a, b_sel);
+	*/
 	
 	wire [15:0] shifted;
 	wire left;
