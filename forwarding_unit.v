@@ -12,7 +12,7 @@ module forwarding_unit(
         else if (memwb_regwrite && memwb_rd != `r_zero && exmem_rd != idex_rs && memwb_rd == idex_rs)
             forward_a = 2'b01; //forward from MEM
         else
-            forward_a == 2'b00;
+            forward_a = 2'b00;
 
 
         if (exmem_regwrite && exmem_rd != `r_zero && exmem_rd == idex_rt)
@@ -20,7 +20,7 @@ module forwarding_unit(
         else if (memwb_regwrite && memwb_rd != `r_zero && exmem_rd != idex_rt && memwb_rd == idex_rt)
             forward_b = 2'b01; //forward from MEM
         else 
-            forward_b == 2'b00;
+            forward_b = 2'b00;
     end
 
 endmodule
