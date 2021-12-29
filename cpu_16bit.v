@@ -2,19 +2,19 @@
 module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
     
 	// IF
-	wire [15:0] pc_address_in, pc_address_out;
-	wire [15:0] branch_address_3;
-	wire pc_write;
+	wire [15:0] IF_pc_address_in, IF_pc_address_out;
+	wire [15:0] EX_branch_address_3;
+	wire IF_pc_write;
 	wire [15:0] IF_pc_plus_1, IF_instruction;
-	wire IF_ID_write, IF_ID_async_nop;
+	wire IF_ID_write, IF_ID_sync_nop;
 
 	reg ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq;
-	wire alu_zero;
+	wire EX_alu_zero;
 	
-	assign pc_address_in = (ID_EX_b | ID_EX_br | ID_EX_bl | (ID_EX_beq&alu_zero)) ? branch_address_3 : IF_pc_plus_1;
-	pc _pc (pc_address_out, pc_address_in, clk, pc_reset, pc_write);
-	add_1 _add_1 (IF_pc_plus_1, pc_address_out);
-	instruction_memory _instruction_mem(IF_instruction, pc_address_out, clk);
+	assign pc_address_in = (ID_EX_b | ID_EX_br | ID_EX_bl | (ID_EX_beq&EX_alu_zero)) ? EX_branch_address_3 : IF_pc_plus_1;
+	pc _pc (IF_pc_address_out, IF_pc_address_in, clk, pc_reset, IF_pc_write);
+	add_1 _add_1 (IF_pc_plus_1, IF_pc_address_out);
+	instruction_memory _instruction_mem(IF_instruction, IF_pc_address_out, clk);
 	
 
 	// IF/ID
@@ -22,7 +22,7 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 	reg [15:0] IF_ID_instruction;
 
 	always @ (posedge clk) begin
-		if (IF_ID_async_nop) begin
+		if (IF_ID_sync_nop) begin
 			IF_ID_instruction <= `nop;
 		end
 		else if (IF_ID_write) begin
@@ -38,8 +38,63 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 	reg [3:0] MEM_WB_rd;
 	wire controls_clear;
 	wire [15:0] ID_read_data_1, ID_read_data_2;
-
 	wire [15:0] ID_imm;
+	reg [3:0] ID_rs, ID_rt, ID_rd;
+
+	always @ (*) begin
+		case(IF_ID_instruction[15:12]) //opcode
+			`addi: begin // i-type
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = `r_zero;
+				ID_rd = IF_ID_instruction[7:4];
+			end
+			`lsl: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = `r_zero;
+				ID_rd = IF_ID_instruction[7:4];
+			end
+			`lsr: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = `r_zero;
+				ID_rd = IF_ID_instruction[7:4];
+			end
+			`ldr: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = IF_ID_instruction[7:4];
+				ID_rd = `r_zero;
+			end
+			`str: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = IF_ID_instruction[7:4];
+				ID_rd = `r_zero;
+			end
+			`beq: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = IF_ID_instruction[7:4];
+				ID_rd = `r_zero;
+			end
+			`b: begin
+				ID_rs = `r_zero;
+				ID_rt = `r_zero;
+				ID_rd = `r_zero;
+			end
+			`bl: begin
+				ID_rs = `r_zero;
+				ID_rt = `r_zero;
+				ID_rd = IF_ID_instruction[3:0];
+			end
+			`br: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = `r_zero;
+				ID_rd = `r_zero;
+			end
+			default: begin // r-type instruction
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = IF_ID_instruction[7:4];
+				ID_rd = IF_ID_instruction[3:0];
+			end
+		endcase
+	end
 
 	assign ID_imm = ID_bl ? {{8{IF_ID_instruction[11]}}, IF_ID_instruction[11:4]} : {{12{IF_ID_instruction[3]}}, IF_ID_instruction[3:0]};
 
@@ -99,17 +154,14 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 		ID_EX_read_data_1 <= ID_read_data_1;
 		ID_EX_read_data_2 <= ID_read_data_2;
 		ID_EX_imm <= ID_imm;
-		ID_EX_rs <= IF_ID_instruction[11:8];
-		ID_EX_rt <= IF_ID_instruction[11];
-		ID_EX_rd <= IF_ID_instruction[11];
+
+		ID_EX_rs <= ID_rs;
+		ID_EX_rt <= ID_rt;
+		ID_EX_rd <= ID_rd;
 	end
 	
 
 	// EX
-
-	wire [15:0] EX_alu_out;
- 	wire EX_zero;
-	
 	wire [15:0] EX_alu_out, EX_write_data;
 	wire [3:0] EX_rt_rd;
 	wire [1:0] forward_a, forward_b;
@@ -138,8 +190,10 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 		endcase	
 
 		EX_alu_in_2 = (ID_EX_alu_src) ? ID_EX_imm : EX_write_data;
+		EX_rt_rd = (ID_EX_reg_dest) ? ID_EX_rd : ID_EX_rt;
 	end
 	
+	alu _alu(EX_alu_zero, EX_alu_out, EX_alu_in_1, EX_alu_in_2, ID_EX_alu_op);
 	
 	// EX/MEM
 	reg EX_MEM_reg_write, EX_MEM_bl, EX_MEM_mem_to_reg;
@@ -199,6 +253,28 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 		ID_EX_rs, ID_EX_rt, EX_MEM_rd, MEM_WB_rd,
 		EX_MEM_reg_write, MEM_WB_reg_write
 	)
-	
+	hazard_detection_unit _hazard_detection_unit(
+		pc_write, IF_ID_write, controls_clear,
+		ID_EX_mem_read,
+		ID_EX_rt, ID_rs, ID_rt
+	) 
 
+	//Pipeline Flusher for BEQ
+	reg start_nop;
+	reg flush_counter;
+	wire IF_ID_sync_nop;
+	always @ (*) begin
+		if (IF_ID_instruction[15:12] == `beq && EX_read_data_1 == EX_read_data_2)
+			start_nop = 1'b1;
+		else
+			start_nop = 1'b0;
+	end
+	always @ (posedge clk) begin
+		if (flush_counter == 1'b0)
+			flush_counter <= start_nop;
+		else
+			flush_counter <= 1'b0;
+	end
+
+	assign IF_ID_sync_nop = (flush_counter > 0) ? 1'b1 : start_nop;
 endmodule
