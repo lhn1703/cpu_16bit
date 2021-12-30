@@ -1,7 +1,9 @@
+`include "macro_defines.v"
 module pipeline_flusher (
     output IF_ID_sync_nop,
     input [15:0] ID_read_data_1, ID_read_data_2, EX_alu_out,
-    input [3:0] opcode, ID_rs, ID_rt, EX_rt_rd
+    input [3:0] opcode, ID_rs, ID_rt, EX_rt_rd,
+	input clk
 );
     
     reg start_nop;
@@ -11,11 +13,11 @@ module pipeline_flusher (
             start_nop = 1'b1;
         else if (opcode == `beq) begin
             if (EX_rt_rd == ID_rs)
-                start_nop = (ID_read_data_2 == EX_alu_out)
+                start_nop = (ID_read_data_2 == EX_alu_out);
             else if (EX_rt_rd == ID_rt)
-                start_nop = (ID_read_data_1 == EX_alu_out)
+                start_nop = (ID_read_data_1 == EX_alu_out);
             else
-                start_nop = (ID_read_data_1 == ID_read_data_2)
+                start_nop = (ID_read_data_1 == ID_read_data_2);
         end 
         else
             start_nop = 1'b0;

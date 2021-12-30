@@ -22,10 +22,16 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 	reg [15:0] IF_ID_instruction;
 
 	always @ (posedge clk or posedge pc_reset) begin
-		if (IF_ID_sync_nop | pc_reset) begin
+		if (pc_reset) begin
 			IF_ID_instruction <= `nop;
 		end
-		else if (IF_ID_write) begin
+		else if (~IF_ID_write) begin
+			IF_ID_pc_plus_1 <= IF_ID_pc_plus_1;
+			IF_ID_instruction <= IF_ID_instruction;
+		end
+		else if (IF_ID_sync_nop)
+			IF_ID_instruction <= `nop;
+		else begin
 			IF_ID_pc_plus_1 <= IF_pc_plus_1;
 			IF_ID_instruction <= IF_instruction;
 		end
@@ -177,11 +183,11 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 
 	//need to implement branching adder and muxes
 	wire [15:0] EX_branch_address_1, EX_branch_address_2;
+	reg [15:0] EX_alu_in_1, EX_alu_in_2, EX_write_data;
 	cla_16 _branch_adder (EX_branch_address_1, 1'b0, ID_EX_imm, ID_EX_pc_plus_1);
 	assign EX_branch_address_2 = ID_EX_b ? ID_EX_branch_address : EX_branch_address_1;
-	assign EX_branch_address_3 = ID_EX_br ? ID_EX_read_data_1 : EX_branch_address_2;
+	assign EX_branch_address_3 = ID_EX_br ? EX_alu_in_1 : EX_branch_address_2;
 
-	reg [15:0] EX_alu_in_1, EX_alu_in_2, EX_write_data;
 	always @ (*) begin
 		case (forward_a) 
 			2'b00: EX_alu_in_1 = ID_EX_read_data_1;
@@ -268,6 +274,7 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 	pipeline_flusher _pipeline_flusher(
 		IF_ID_sync_nop,
 		ID_read_data_1, ID_read_data_2, EX_alu_out,
-		IF_ID_instruction[15:12], ID_rs, ID_rt, EX_rt_rd
+		IF_ID_instruction[15:12], ID_rs, ID_rt, EX_rt_rd,
+		clk
 	);
 endmodule
