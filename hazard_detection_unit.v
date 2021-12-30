@@ -8,11 +8,11 @@ module hazard_detection_unit(
         if (idex_memread && (idex_rt == ifid_rs || idex_rt == ifid_rt)) begin
             pc_write = 0; //add a bubble
             ifid_write = 0;
-            controls_clear = 0;
+            controls_clear = 1;
         end else begin
             pc_write = 1; //normal operation
             ifid_write = 1;
-            controls_clear = 1;
+            controls_clear = 0;
         end
             
     end
