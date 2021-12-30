@@ -265,24 +265,9 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 		ID_EX_mem_read,
 		ID_EX_rt, ID_rs, ID_rt
 	);
-
-	//Pipeline Flusher for BEQ
-	reg start_nop;
-	reg flush_counter;
-	always @ (*) begin
-		if ((IF_ID_instruction[15:12] == `beq && ID_read_data_1 == ID_read_data_2) ||
-			IF_ID_instruction[15:12] == `b || IF_ID_instruction[15:12] == `bl ||
-			IF_ID_instruction[15:12] == `br)
-			start_nop = 1'b1;
-		else
-			start_nop = 1'b0;
-	end
-	always @ (posedge clk) begin
-		if (flush_counter == 1'b0)
-			flush_counter <= start_nop;
-		else
-			flush_counter <= 1'b0;
-	end
-
-	assign IF_ID_sync_nop = (flush_counter > 0) ? 1'b1 : start_nop;
+	pipeline_flusher _pipeline_flusher(
+		IF_ID_sync_nop,
+		ID_read_data_1, ID_read_data_2, EX_alu_out,
+		IF_ID_instruction[15:12], ID_rs, ID_rt, EX_rt_rd
+	);
 endmodule
