@@ -1,5 +1,9 @@
 start:		add r1, r_zero, r12;
-			str r1, r_zero, 0;
-			addi r0, r1, 1;
-			ldr r0, r_zero, 0;
+			bl func;
 end:		b end;
+func:		str lr, sp, 0;
+			addi r0, r1, 2;
+			str r0, r0, 0;	
+			ldr lr, sp, 0;
+			br lr;
+			lsl r_zero, r_zero, 0;
