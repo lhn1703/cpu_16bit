@@ -23,7 +23,8 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 
 	always @ (posedge clk or posedge pc_reset) begin
 		if (pc_reset) begin
-			IF_ID_instruction <= `nop;
+		 	IF_ID_instruction <= IF_instruction;
+			 IF_ID_pc_plus_1 <= 16'b0;
 		end
 		else if (~IF_ID_write) begin
 			IF_ID_pc_plus_1 <= IF_ID_pc_plus_1;

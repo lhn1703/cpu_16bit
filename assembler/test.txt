@@ -1,5 +1,5 @@
 start:		add r1, r_zero, r12;
-			addi r4, r_zero, 1;
-			addi r0, r_zero, 0;
-			add r2, r1, r4;
+			str r1, r_zero, 0;
+			addi r0, r1, 1;
+			ldr r0, r_zero, 0;
 end:		b end;
