@@ -29,5 +29,5 @@ module pipeline_flusher (
             flush_counter <= 1'b0;
     end
 
-    assign IF_ID_sync_nop = (flush_counter > 0) ? 1'b1 : start_nop;
+    assign IF_ID_sync_nop = (flush_counter > 1'b0) ? 1'b1 : start_nop;
 endmodule
