@@ -17,5 +17,6 @@ rec_end:	addi r0, r_zero, 1;
 end_func:	addi sp, sp, -2;
 			ldr r1, sp, 1;
 			ldr lr, sp, 0;
+			lsl r_zero, r_zero, 0;
 			br lr;
 end:		b end;
