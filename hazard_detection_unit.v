@@ -6,13 +6,13 @@ module hazard_detection_unit(
 
     always @ (*) begin
         if (idex_memread && (idex_rt == ifid_rs || idex_rt == ifid_rt)) begin
-            pc_write = 0; //add a bubble
-            ifid_write = 0;
-            controls_clear = 1;
+            pc_write = 1'b0; //add a bubble
+            ifid_write = 1'b0;
+            controls_clear = 1'b1;
         end else begin
-            pc_write = 1; //normal operation
-            ifid_write = 1;
-            controls_clear = 0;
+            pc_write = 1'b1; //normal operation
+            ifid_write = 1'b1;
+            controls_clear = 1'b0;
         end
             
     end

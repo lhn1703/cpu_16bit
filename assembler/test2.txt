@@ -1,6 +1,5 @@
 start:		add r1, r_zero, r12;
 			bl func;
-            lsl r_zero, r_zero, 0;
 end:		b end;
 func:		str lr, sp, 0;
 			addi r0, r1, 1;

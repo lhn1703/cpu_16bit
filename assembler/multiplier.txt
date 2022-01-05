@@ -18,7 +18,4 @@ multLoop:	beq r1, r3, exitMult;
 exitMult:	addi r0, r2, 0;
 			addi sp, sp, -1;
 			ldr lr, sp, 0;
-			lsl r_zero, r_zero, 0;
-			lsl r_zero, r_zero, 0;
-			lsl r_zero, r_zero, 0;
 			br lr;
