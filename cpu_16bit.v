@@ -53,6 +53,12 @@ module cpu_16bit (output reg [15:0] debug, output [15:0] result_reg, input [15:0
 	wire ID_mem_write, ID_mem_read;
 	wire ID_b, ID_br, ID_bl, ID_beq, ID_alu_src, ID_reg_dst;
 	wire [3:0] ID_alu_op;
+	
+	reg ID_mux_reg_write, ID_mux_mem_to_reg;
+	reg ID_mux_mem_write, ID_mux_mem_read;
+	reg ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq;
+	reg ID_mux_alu_src, ID_mux_reg_dst;
+	reg [3:0] ID_mux_alu_op;
 
 	always @ (*) begin
 		case(IF_ID_instruction[15:12]) //opcode
@@ -109,6 +115,33 @@ module cpu_16bit (output reg [15:0] debug, output [15:0] result_reg, input [15:0
 		endcase
 	end
 
+	always @(*) begin
+		if (controls_clear) begin
+			{
+				ID_mux_reg_write, ID_mux_mem_to_reg,
+				ID_mux_mem_write, ID_mux_mem_read,
+				ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq,
+				ID_mux_alu_src, ID_mux_reg_dst,
+				ID_mux_alu_op
+			} <= 14'b0;
+		end
+		else begin
+			{
+				ID_mux_reg_write, ID_mux_mem_to_reg,
+				ID_mux_mem_write, ID_mux_mem_read,
+				ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq,
+				ID_mux_alu_src, ID_mux_reg_dst,
+				ID_mux_alu_op
+			} <= {
+				ID_reg_write, ID_mem_to_reg,
+				ID_mem_write, ID_mem_read,
+				ID_b, ID_br, ID_bl, ID_beq,
+				ID_alu_src, ID_reg_dst,
+				ID_alu_op
+			};
+		end
+	end
+
 	assign ID_imm = ID_bl ? {{8{IF_ID_instruction[11]}}, IF_ID_instruction[11:4]} : {{12{IF_ID_instruction[3]}}, IF_ID_instruction[3:0]};
 	assign ID_branch_address = {IF_ID_pc_plus_1[15:12], IF_ID_instruction[11:0]};
 
@@ -138,30 +171,19 @@ module cpu_16bit (output reg [15:0] debug, output [15:0] result_reg, input [15:0
 	reg [3:0] ID_EX_rs, ID_EX_rt, ID_EX_rd;
 
 	always @(posedge clk) begin
-		if (controls_clear) begin
-			{
-				ID_EX_reg_write, ID_EX_mem_to_reg,
-				ID_EX_mem_write, ID_EX_mem_read,
-				ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq,
-				ID_EX_alu_src, ID_EX_reg_dst,
-				ID_EX_alu_op
-			} <= 14'b0;
-		end
-		else begin
-			{
-				ID_EX_reg_write, ID_EX_mem_to_reg,
-				ID_EX_mem_write, ID_EX_mem_read,
-				ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq,
-				ID_EX_alu_src, ID_EX_reg_dst,
-				ID_EX_alu_op
-			} <= {
-				ID_reg_write, ID_mem_to_reg,
-				ID_mem_write, ID_mem_read,
-				ID_b, ID_br, ID_bl, ID_beq,
-				ID_alu_src, ID_reg_dst,
-				ID_alu_op
-			};
-		end
+		{
+			ID_EX_reg_write, ID_EX_mem_to_reg,
+			ID_EX_mem_write, ID_EX_mem_read,
+			ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq,
+			ID_EX_alu_src, ID_EX_reg_dst,
+			ID_EX_alu_op
+		} <= {
+			ID_mux_reg_write, ID_mux_mem_to_reg,
+			ID_mux_mem_write, ID_mux_mem_read,
+			ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq,
+			ID_mux_alu_src, ID_mux_reg_dst,
+			ID_mux_alu_op
+		};
 
 		ID_EX_branch_address <= ID_branch_address;
 		ID_EX_pc_plus_1 <= IF_ID_pc_plus_1;
@@ -275,8 +297,8 @@ module cpu_16bit (output reg [15:0] debug, output [15:0] result_reg, input [15:0
 	pipeline_flusher _pipeline_flusher(
 		IF_ID_sync_nop,
 		ID_read_data_1, ID_read_data_2, EX_alu_out,
-		IF_ID_instruction[15:12], ID_rs, ID_rt, EX_rt_rd,
-		clk
+		ID_rs, ID_rt, EX_rt_rd,
+		ID_mux_b, ID_mux_bl, ID_mux_br, ID_mux_beq, clk
 	);
 
 	// Debugging
