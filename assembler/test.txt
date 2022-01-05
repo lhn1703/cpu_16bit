@@ -1,8 +1,0 @@
-start:		add r1, r_zero, r12;
-			bl func;
-			add r0, r2, r_zero;
-end:		b end;
-func:		str lr, sp, 0;
-			addi r2, r1, 1;
-			ldr lr, sp, 0;
-			br lr;
