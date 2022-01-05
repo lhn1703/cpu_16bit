@@ -1,5 +1,5 @@
 `include "macro_defines.v"
-module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
+module cpu_16bit (output reg [15:0] debug, output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
     
 	// IF
 	wire [15:0] IF_pc_address_in, IF_pc_address_out;
@@ -278,4 +278,14 @@ module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input cl
 		IF_ID_instruction[15:12], ID_rs, ID_rt, EX_rt_rd,
 		clk
 	);
+
+	// Debugging
+	always @ (*) begin
+		debug[0] = ((({ID_EX_reg_write, ID_EX_mem_to_reg,
+				ID_EX_mem_write, ID_EX_mem_read,
+				ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq,
+				ID_EX_alu_src, ID_EX_reg_dst,
+				ID_EX_alu_op} == 14'b0) | debug[0]) & ~pc_reset);
+		debug[15:1] = 15'b0;
+	end
 endmodule
