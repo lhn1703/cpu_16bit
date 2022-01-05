@@ -1,102 +1,310 @@
-module cpu_16bit (output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
-    //Branching
-	wire [15:0] pc_plus_1, branch_sum;
-	reg [15:0] pc_plus_1_reg;
-	always @(negedge clk) pc_plus_1_reg <= pc_plus_1; //discount pipelining for branches
-	//wire [15:0] new_pc_address1, new_pc_address2, new_pc_address3;
-	
-	
-	//IF: pc + instr mem
-    //wire [15:0] pc_address, new_pc_address, instruction;
-	wire [15:0] pc_address, instruction;
-	reg [15:0] new_pc_address;
-	
-    //IF: controls 
-    wire reg_dst, branch, beq, bl, br, mem_to_reg;
-	wire mem_read, mem_write, alu_src, reg_write; 
-    wire [3:0] alu_op;
-	wire [3:0] opcode;
-    assign opcode = instruction[15:12];
+`include "macro_defines.v"
+module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
+    
+	// IF
+	wire [15:0] IF_pc_address_in, IF_pc_address_out;
+	wire [15:0] EX_branch_address_3;
+	wire pc_write;
+	wire [15:0] IF_pc_plus_1, IF_instruction;
+	wire IF_ID_write, IF_ID_sync_nop;
 
-    //ID: registers
-    wire [15:0] read_data1, read_data2;
-	wire [3:0] read_reg1, read_reg2, write_reg;
-	wire [15:0] reg_write_data;
-	wire [7:0] sign_extend4, immediate;
-    wire [15:0] sign_extend16;
-    assign read_reg1 = instruction[11:8];
-    assign read_reg2 = instruction[7:4];
-    assign write_reg = (reg_dst == 0) ? instruction[7:4] : instruction[3:0];
-	assign sign_extend4 = {{4{instruction[3]}}, instruction[3:0]};
-	assign immediate = (bl == 0) ? sign_extend4 : instruction[11:4];
-    assign sign_extend16 = {{8{immediate[7]}}, immediate};
+	reg ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq;
+	wire EX_alu_zero;
+	
+	assign IF_pc_address_in = (ID_EX_b | ID_EX_br | ID_EX_bl | (ID_EX_beq&EX_alu_zero)) ? EX_branch_address_3 : IF_pc_plus_1;
+	pc _pc (IF_pc_address_out, IF_pc_address_in, clk, pc_reset, pc_write);
+	add_1 _add_1 (IF_pc_plus_1, IF_pc_address_out);
+	instruction_memory _instruction_mem(IF_instruction, IF_pc_address_out, clk);
+	
 
-    //EX: alu
-    wire zero;
-    wire [15:0] ALU_out; 
-    wire [15:0] a, b;
-    wire [3:0] ALU_op;
-	assign a = read_data1;
-	assign b = (alu_src == 0) ? read_data2 : sign_extend16;
+	// IF/ID
+	reg [15:0] IF_ID_pc_plus_1;
+	reg [15:0] IF_ID_instruction;
 
-	always @ (*) begin //unrolling the cascaded muxes for performance
-		if ((beq&zero | bl) & ~branch  &~br)
-			new_pc_address = branch_sum;
-		else if ((~beq | ~zero)&(~bl) & ~branch & ~br)
-			new_pc_address = pc_plus_1_reg;
-		else if (branch)
-			new_pc_address = {pc_plus_1_reg[15:12], instruction[11:0]};
-		else
-			new_pc_address = read_data1;
+	always @ (posedge clk or posedge pc_reset) begin
+		if (pc_reset) begin
+		 	IF_ID_instruction <= `nop;
+			//IF_ID_pc_plus_1 <= 16'b0;
+		end
+		else if (~IF_ID_write) begin
+			IF_ID_pc_plus_1 <= IF_ID_pc_plus_1;
+			IF_ID_instruction <= IF_ID_instruction;
+		end
+		else if (IF_ID_sync_nop)
+			IF_ID_instruction <= `nop;
+		else begin
+			IF_ID_pc_plus_1 <= IF_pc_plus_1;
+			IF_ID_instruction <= IF_instruction;
+		end
 	end
 	
-	//MEM: data memory
-	wire [15:0] read_data;
-	wire [15:0] mem_address, mem_write_data;
-	wire [15:0] write_back1, write_back2;
-	assign mem_address = ALU_out;
-	assign mem_write_data = read_data2;
-	assign write_back1 = (mem_to_reg == 0) ? ALU_out : read_data;
-	assign write_back2 = (bl == 0) ? write_back1 : pc_plus_1_reg;
-	
-	/*assign new_pc_address1 = (beq&zero | bl) ? branch_sum : pc_plus_1;
-	assign new_pc_address2 = (branch == 0) ? new_pc_address1 : {pc_plus_1[15:12], instruction[11:0]};
-	assign new_pc_address3 = (br == 0) ? new_pc_address2 : read_data1;*/
 
-	//WB: write back
-	assign reg_write_data = write_back2;
-	//assign new_pc_address = new_pc_address3; 
+	// ID
+	reg MEM_WB_reg_write;
+	wire [15:0] WB_data;
+	reg [3:0] MEM_WB_rd;
+	wire controls_clear;
+	wire [15:0] ID_read_data_1, ID_read_data_2;
+	wire [15:0] ID_imm;
+	reg [3:0] ID_rs, ID_rt, ID_rd;
+	wire [15:0] ID_branch_address;
+	
+	wire ID_reg_write, ID_mem_to_reg;
+	wire ID_mem_write, ID_mem_read;
+	wire ID_b, ID_br, ID_bl, ID_beq, ID_alu_src, ID_reg_dst;
+	wire [3:0] ID_alu_op;
+	
+	reg ID_mux_reg_write, ID_mux_mem_to_reg;
+	reg ID_mux_mem_write, ID_mux_mem_read;
+	reg ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq;
+	reg ID_mux_alu_src, ID_mux_reg_dst;
+	reg [3:0] ID_mux_alu_op;
 
-	add_1 u_add_1 (pc_plus_1, pc_address);
-	
-	cla_16 branch_add (branch_sum, 1'b0, pc_plus_1_reg, sign_extend16);
-	
-	alu u_alu (zero, ALU_out, a, b, alu_op);
-	
-    pc u_pc (pc_address, new_pc_address, clk, pc_reset);
-	
-    instruction_memory u_instr_mem (
-        instruction, pc_address, clk
-    );
+	always @ (*) begin
+		case(IF_ID_instruction[15:12]) //opcode
+			`addi: begin // i-type
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = `r_zero;
+				ID_rd = IF_ID_instruction[7:4];
+			end
+			`lsl: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = `r_zero;
+				ID_rd = IF_ID_instruction[7:4];
+			end
+			`lsr: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = `r_zero;
+				ID_rd = IF_ID_instruction[7:4];
+			end
+			`ldr: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = IF_ID_instruction[7:4];
+				ID_rd = `r_zero;
+			end
+			`str: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = IF_ID_instruction[7:4];
+				ID_rd = `r_zero;
+			end
+			`beq: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = IF_ID_instruction[7:4];
+				ID_rd = `r_zero;
+			end
+			`b: begin
+				ID_rs = `r_zero;
+				ID_rt = `r_zero;
+				ID_rd = `r_zero;
+			end
+			`bl: begin
+				ID_rs = `r_zero;
+				ID_rt = `r_zero;
+				ID_rd = IF_ID_instruction[3:0];
+			end
+			`br: begin
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = `r_zero;
+				ID_rd = `r_zero;
+			end
+			default: begin // r-type instruction
+				ID_rs = IF_ID_instruction[11:8];
+				ID_rt = IF_ID_instruction[7:4];
+				ID_rd = IF_ID_instruction[3:0];
+			end
+		endcase
+	end
 
-    controls u_control (
-		reg_dst, branch, beq, bl, br, mem_to_reg,
-		mem_read, mem_write, alu_src, reg_write, alu_op,
-		opcode
+	always @(*) begin
+		if (controls_clear) begin
+			{
+				ID_mux_reg_write, ID_mux_mem_to_reg,
+				ID_mux_mem_write, ID_mux_mem_read,
+				ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq,
+				ID_mux_alu_src, ID_mux_reg_dst,
+				ID_mux_alu_op
+			} <= 14'b0;
+		end
+		else begin
+			{
+				ID_mux_reg_write, ID_mux_mem_to_reg,
+				ID_mux_mem_write, ID_mux_mem_read,
+				ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq,
+				ID_mux_alu_src, ID_mux_reg_dst,
+				ID_mux_alu_op
+			} <= {
+				ID_reg_write, ID_mem_to_reg,
+				ID_mem_write, ID_mem_read,
+				ID_b, ID_br, ID_bl, ID_beq,
+				ID_alu_src, ID_reg_dst,
+				ID_alu_op
+			};
+		end
+	end
+
+	assign ID_imm = ID_bl ? {{8{IF_ID_instruction[11]}}, IF_ID_instruction[11:4]} : {{12{IF_ID_instruction[3]}}, IF_ID_instruction[3:0]};
+	assign ID_branch_address = {IF_ID_pc_plus_1[15:12], IF_ID_instruction[11:0]};
+
+	controls _controls (
+		ID_reg_dst, ID_b, ID_beq, ID_bl, ID_br, ID_mem_to_reg,
+		ID_mem_read, ID_mem_write, ID_alu_src, ID_reg_write, ID_alu_op,
+		IF_ID_instruction[15:12]
 	);
 
-    registers u_regs (	
-        read_data1, read_data2, result_reg,
-	    read_reg1, read_reg2, write_reg,
-	    reg_write_data, initial_input,
-	    reg_write, clk, pc_reset
-	);	
+	registers _reg (
+		ID_read_data_1, ID_read_data_2, result_reg,
+		IF_ID_instruction[11:8], IF_ID_instruction[7:4], MEM_WB_rd,
+		WB_data, initial_input,
+		MEM_WB_reg_write, clk, pc_reset
+	);
 
-	data_memory u_data_mem (
-		read_data,
-		mem_address, mem_write_data,
-		mem_read, mem_write, clk
-	);	
+	
+	// ID/EX
+	reg ID_EX_reg_write, ID_EX_mem_to_reg;
+	reg ID_EX_mem_write, ID_EX_mem_read;
+	reg ID_EX_alu_src, ID_EX_reg_dst;
+	reg [3:0] ID_EX_alu_op;
 
+	reg [15:0] ID_EX_branch_address, ID_EX_pc_plus_1;
+	reg [15:0] ID_EX_read_data_1, ID_EX_read_data_2;
+	reg [15:0] ID_EX_imm;
+	reg [3:0] ID_EX_rs, ID_EX_rt, ID_EX_rd;
 
+	always @(posedge clk) begin
+		{
+			ID_EX_reg_write, ID_EX_mem_to_reg,
+			ID_EX_mem_write, ID_EX_mem_read,
+			ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq,
+			ID_EX_alu_src, ID_EX_reg_dst,
+			ID_EX_alu_op
+		} <= {
+			ID_mux_reg_write, ID_mux_mem_to_reg,
+			ID_mux_mem_write, ID_mux_mem_read,
+			ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq,
+			ID_mux_alu_src, ID_mux_reg_dst,
+			ID_mux_alu_op
+		};
+
+		ID_EX_branch_address <= ID_branch_address;
+		ID_EX_pc_plus_1 <= IF_ID_pc_plus_1;
+		ID_EX_read_data_1 <= ID_read_data_1;
+		ID_EX_read_data_2 <= ID_read_data_2;
+		ID_EX_imm <= ID_imm;
+
+		ID_EX_rs <= ID_rs;
+		ID_EX_rt <= ID_rt;
+		ID_EX_rd <= ID_rd;
+	end
+	
+
+	// EX
+	wire [15:0] EX_alu_out;
+	reg [3:0] EX_rt_rd;
+	wire [1:0] forward_a, forward_b;
+
+	reg [15:0] EX_MEM_alu_out;
+
+	//need to implement branching adder and muxes
+	wire [15:0] EX_branch_address_1, EX_branch_address_2;
+	reg [15:0] EX_alu_in_1, EX_alu_in_2, EX_write_data;
+	cla_16 _branch_adder (EX_branch_address_1, 1'b0, ID_EX_imm, ID_EX_pc_plus_1);
+	assign EX_branch_address_2 = ID_EX_b ? ID_EX_branch_address : EX_branch_address_1;
+	assign EX_branch_address_3 = ID_EX_br ? EX_alu_in_1 : EX_branch_address_2;
+
+	always @ (*) begin
+		case (forward_a) 
+			2'b00: EX_alu_in_1 = ID_EX_read_data_1;
+			2'b01: EX_alu_in_1 = WB_data;
+			2'b10: EX_alu_in_1 = EX_MEM_alu_out;
+			default: EX_alu_in_1 = 16'hffff;
+		endcase
+
+		case (forward_b)
+			2'b00: EX_write_data = ID_EX_read_data_2;
+			2'b01: EX_write_data = WB_data;
+			2'b10: EX_write_data = EX_MEM_alu_out;
+			default: EX_write_data = 16'hffff;
+		endcase	
+
+		EX_alu_in_2 = (ID_EX_alu_src) ? ID_EX_imm : EX_write_data;
+		EX_rt_rd = (ID_EX_reg_dst) ? ID_EX_rd : ID_EX_rt;
+	end
+	
+	alu _alu(EX_alu_zero, EX_alu_out, EX_alu_in_1, EX_alu_in_2, ID_EX_alu_op);
+	
+	// EX/MEM
+	reg EX_MEM_reg_write, EX_MEM_bl, EX_MEM_mem_to_reg;
+	reg EX_MEM_mem_write, EX_MEM_mem_read;
+	reg [15:0] EX_MEM_pc_plus_1, EX_MEM_write_data; 
+	reg [3:0] EX_MEM_rd;
+
+	always @ (posedge clk) begin
+		EX_MEM_reg_write <= ID_EX_reg_write;
+		EX_MEM_bl <= ID_EX_bl;
+		EX_MEM_mem_to_reg <= ID_EX_mem_to_reg;
+
+		EX_MEM_mem_write <= ID_EX_mem_write;
+		EX_MEM_mem_read <= ID_EX_mem_read;
+
+		EX_MEM_pc_plus_1 <= ID_EX_pc_plus_1;
+		EX_MEM_alu_out <= EX_alu_out;
+		EX_MEM_write_data <= EX_write_data;
+
+		EX_MEM_rd <= EX_rt_rd;
+	end
+	
+	// MEM
+	wire [15:0] MEM_read_data;
+
+	data_memory _data_memory(
+		MEM_read_data,
+		EX_MEM_alu_out,
+		EX_MEM_write_data,
+		EX_MEM_mem_read, EX_MEM_mem_write, clk
+	);
+	
+	// MEM/WB
+	reg MEM_WB_bl, MEM_WB_mem_to_reg;
+	reg [15:0] MEM_WB_pc_plus_1, MEM_WB_read_data, MEM_WB_alu_out;
+	
+	always @ (posedge clk) begin
+		MEM_WB_reg_write <= EX_MEM_reg_write; 
+		MEM_WB_bl <= EX_MEM_bl; 
+		MEM_WB_mem_to_reg <= EX_MEM_mem_to_reg;
+
+		MEM_WB_pc_plus_1 <= EX_MEM_pc_plus_1;
+		MEM_WB_read_data <= MEM_read_data;
+		MEM_WB_alu_out <= EX_MEM_alu_out;
+		MEM_WB_rd <= EX_MEM_rd;
+	end
+	
+	// WB
+	wire [15:0] WB_mux_1;
+	assign WB_mux_1 = (MEM_WB_mem_to_reg) ? MEM_WB_read_data : MEM_WB_alu_out; 
+	assign WB_data = (MEM_WB_bl) ? MEM_WB_pc_plus_1 : WB_mux_1;
+
+	// Pipelining Units
+	forwarding_unit _forwarding_unit (
+		forward_a, forward_b,
+		ID_EX_rs, ID_EX_rt, EX_MEM_rd, MEM_WB_rd,
+		EX_MEM_reg_write, MEM_WB_reg_write
+	);
+	hazard_detection_unit _hazard_detection_unit(
+		pc_write, IF_ID_write, controls_clear,
+		ID_EX_mem_read,
+		ID_EX_rt, ID_rs, ID_rt
+	);
+	pipeline_flusher _pipeline_flusher(
+		IF_ID_sync_nop,
+		ID_read_data_1, ID_read_data_2, EX_alu_out,
+		ID_rs, ID_rt, EX_rt_rd,
+		ID_mux_b, ID_mux_bl, ID_mux_br, ID_mux_beq, clk
+	);
+
+	// Debugging
+	// always @ (*) begin
+	// 	debug[2:0] = IF_instruction[14:12];
+	// 	debug[3] = ~pc_reset & (IF_instruction == IF_ID_instruction); 
+	// 	debug[15:4] = 12'b0;
+	// end
 endmodule

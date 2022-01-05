@@ -74,7 +74,7 @@ int main()
 		{
 			temp.pop_back();
 			labelList.push_back(make_pair(temp, instructionAddress));
-			cout << temp + to_string(instructionAddress) + "\n";
+			cout << "Label found: " << temp + " at line " + to_string(instructionAddress) + ".\n";
 			instructionAddress++;
 			continue;
 		}

@@ -5,7 +5,7 @@ module cla_16_tb;
 	wire [15:0] s, b_n;
 	integer i, f;
 	
-	cla_16 uut(.s, .a, .b, .c_in);
+	cla_16 uut(.s, .c_in, .a, .b);
 	assign b_n = ~b;
 	
 	initial begin
