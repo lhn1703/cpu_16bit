@@ -2,16 +2,16 @@
 module pipeline_flusher (
     output IF_ID_sync_nop,
     input [15:0] ID_read_data_1, ID_read_data_2, EX_alu_out,
-    input [3:0] opcode, ID_rs, ID_rt, EX_rt_rd,
-	input clk
+    input [3:0] ID_rs, ID_rt, EX_rt_rd,
+	input b, bl, br, beq, clk
 );
     
     reg start_nop;
     reg flush_counter;
     always @ (*) begin
-        if (opcode == `b || opcode == `bl || opcode == `br)
+        if (b | bl | br)
             start_nop = 1'b1;
-        else if (opcode == `beq) begin
+        else if (beq) begin
             if (EX_rt_rd == ID_rs)
                 start_nop = (ID_read_data_2 == EX_alu_out);
             else if (EX_rt_rd == ID_rt)
