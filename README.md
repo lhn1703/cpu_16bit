@@ -1,6 +1,6 @@
-# 16-Bit Verilog CPU - DE1-SoC Synthesis Branch
+# 16-Bit Verilog CPU - DE1-SoC Pipelined Branch
 Custom CPU Architecture design inspired by MIPS and ARM
-![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/CPU.png)
+![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/pipelined_CPU.png)
 
 # Registers and Memory
 - 13 general purpose regisers r0 to r12
@@ -34,7 +34,28 @@ Custom CPU Architecture design inspired by MIPS and ARM
 - the beq can only branch to a label within 8 preceding instsructions or 7 following instructions 
 - use auxiliary branches to implement further beq branches
 
-# Datapaths
+# Pipelining Registers
+- between instruction fetch and instruction decode
+- between instruction decode and execute
+- between execute and memory
+- between memory and write back
+
+# Forwarding Unit
+- able to forward data from a previous execute or write back stage in the pipeline directly to the ALU in the current execute stage
+- combinational logic to check for appropriate forwarding
+
+# Hazard Dectection Unit
+- detects and corrects load-use hazards
+- if an instruction immediately following a load requires the load data, this unit will delay that following instruction by 1 cycle
+- it also clears the control bits of the erroneous instruction in the ID/EX pipeline stage to nullify it
+
+# Pipeline Flusher
+- whenever a branch is detected, insert 2 NOPs before the next instruction to flush the pipeline
+- this is done by pausing the pc increment and inserting NOP to the IF/ID pipeline registers for 2 cycles
+- control hazards: assume branch not taken, contains combinational logic to check for conditional beq branching by comparing rs and rt in the ID stage
+- will also forward the ALU result back to perform the correct comparison if rs or rt in beq instruction is being modified by a previous instruction
+
+# Datapaths (Not Updated Yet)
 - R-type Instruction
 ![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/r-type.png)
 - I-type Instruction
