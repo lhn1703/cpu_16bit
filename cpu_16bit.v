@@ -2,16 +2,23 @@
 module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
     
 	// IF
-	wire [15:0] IF_pc_address_in, IF_pc_address_out;
+	//wire [15:0] IF_pc_address_in, IF_pc_address_out;
+	reg [15:0] IF_pc_address_in;
+	wire IF_pc_address_out;
 	wire [15:0] EX_branch_address_3;
 	wire pc_write;
 	wire [15:0] IF_pc_plus_1, IF_instruction;
 	wire IF_ID_write, IF_ID_sync_nop;
 
+	//delete everything except bl later
 	reg ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq;
-	wire EX_alu_zero;
+
+	wire [2:0] IF_branch_select;
+   	wire [15:0] IF_branch_return_addr;
 	
-	assign IF_pc_address_in = (ID_EX_b | ID_EX_br | ID_EX_bl | (ID_EX_beq&EX_alu_zero)) ? EX_branch_address_3 : IF_pc_plus_1;
+	//assign IF_pc_address_in = (ID_EX_b | ID_EX_br | ID_EX_bl | (ID_EX_beq&EX_alu_zero)) ? EX_branch_address_3 : IF_pc_plus_1;
+	
+
 	pc _pc (IF_pc_address_out, IF_pc_address_in, clk, pc_reset, pc_write);
 	add_1 _add_1 (IF_pc_plus_1, IF_pc_address_out);
 	instruction_memory _instruction_mem(IF_instruction, IF_pc_address_out, clk);
@@ -230,7 +237,7 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 		EX_rt_rd = (ID_EX_reg_dst) ? ID_EX_rd : ID_EX_rt;
 	end
 	
-	alu _alu(EX_alu_zero, EX_alu_out, EX_alu_in_1, EX_alu_in_2, ID_EX_alu_op);
+	alu _alu(EX_alu_out, EX_alu_in_1, EX_alu_in_2, ID_EX_alu_op);
 	
 	// EX/MEM
 	reg EX_MEM_reg_write, EX_MEM_bl, EX_MEM_mem_to_reg;
@@ -284,22 +291,35 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	assign WB_data = (MEM_WB_bl) ? MEM_WB_pc_plus_1 : WB_mux_1;
 
 	// Pipelining Units
+	wire [3:0] forward_c;
+	wire [15:0] rd1_sel, rd2_sel;
+
 	forwarding_unit _forwarding_unit (
-		forward_a, forward_b,
-		ID_EX_rs, ID_EX_rt, EX_MEM_rd, MEM_WB_rd,
-		EX_MEM_reg_write, MEM_WB_reg_write
-	);
+    	forward_a, forward_b,
+    	forward_c,
+    	EX_rt_rd, ID_EX_rs, ID_EX_rt, ID_rs, ID_rt, EX_MEM_rd, MEM_WB_rd,
+    	ID_EX_reg_write, EX_MEM_reg_write, MEM_WB_reg_write
+    );
+
 	hazard_detection_unit _hazard_detection_unit(
 		pc_write, IF_ID_write, controls_clear,
 		ID_EX_mem_read,
 		ID_EX_rt, ID_rs, ID_rt
 	);
-	pipeline_flusher _pipeline_flusher(
-		IF_ID_sync_nop,
-		ID_read_data_1, ID_read_data_2, EX_alu_out,
-		ID_rs, ID_rt, EX_rt_rd,
-		ID_mux_b, ID_mux_bl, ID_mux_br, ID_mux_beq, clk
-	);
+	
+	branch_forwarding_selector _branch_forwarding_selector(
+    	rd1_sel, rd2_sel,
+    	ID_read_data_1, ID_read_data_2, EX_MEM_alu, EX_alu_out, WB_data, 
+    	forward_c
+    );
+	
+	pipeline_flusher _pipeline_flusher (
+    	IF_ID_sync_nop,
+    	IF_branch_select,
+   		IF_branch_return_addr,
+    	rd1_sel, rd2_sel,
+		ID_mux_bl, ID_mux_beq, ID_mux_br
+    );
 
 	// Debugging
 	// always @ (*) begin

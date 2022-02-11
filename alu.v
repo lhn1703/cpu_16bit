@@ -1,9 +1,7 @@
 
 `include "macro_defines.v"
 
-module alu(output zero, output reg [15:0] out, input [15:0] a, b, input [3:0] op);
-	assign zero = (out == 16'b0) ? 1'b1 : 1'b0;
-	
+module alu(output reg [15:0] out, input [15:0] a, b, input [3:0] op);
 	wire [15:0] sum, b_sel;
 	//wire [15:0] sum;
 	wire c_in;
