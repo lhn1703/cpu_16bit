@@ -18,4 +18,5 @@ end_func:	addi sp, sp, -2;
 			ldr r1, sp, 1;
 			ldr lr, sp, 0;
 			br lr;
-end:		b end;
+end:		lsl r0, r0, 0;
+			b end;

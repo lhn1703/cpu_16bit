@@ -4,8 +4,7 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	// IF
 	//wire [15:0] IF_pc_address_in, IF_pc_address_out;
 	reg [15:0] IF_pc_address_in;
-	wire IF_pc_address_out;
-	wire [15:0] IF_branch_address;
+	wire [15:0] IF_pc_address_out;
 	wire pc_write;
 	wire [15:0] IF_pc_plus_1, IF_instruction;
 	wire IF_ID_write, IF_ID_sync_nop;
@@ -318,7 +317,7 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	
 	branch_forwarding_selector _branch_forwarding_selector(
     	rd1_sel, rd2_sel,
-    	ID_read_data_1, ID_read_data_2, EX_MEM_alu, EX_alu_out, WB_data, 
+    	ID_read_data_1, ID_read_data_2, EX_MEM_alu_out, EX_alu_out, WB_data, 
     	forward_c
     );
 	

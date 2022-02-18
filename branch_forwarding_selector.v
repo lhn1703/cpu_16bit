@@ -10,14 +10,14 @@ module branch_forwarding_selector (
            2'b01: rd1_sel =  alu;
            2'b10: rd1_sel =  exmem_alu;
            2'b11: rd1_sel =  wb_data;
-           default: rd1;
+           default: rd1_sel = rd1;
        endcase
        case (forward_c[3:2])
            2'b00: rd2_sel =  rd2;
            2'b01: rd2_sel =  alu;
            2'b10: rd2_sel =  exmem_alu;
            2'b11: rd2_sel =  wb_data;
-           default: rd2;
+           default: rd2_sel = rd2;
        endcase
     end
 
