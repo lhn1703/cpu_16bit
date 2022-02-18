@@ -5,18 +5,31 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	//wire [15:0] IF_pc_address_in, IF_pc_address_out;
 	reg [15:0] IF_pc_address_in;
 	wire IF_pc_address_out;
-	wire [15:0] EX_branch_address_3;
+	wire [15:0] IF_branch_address;
 	wire pc_write;
 	wire [15:0] IF_pc_plus_1, IF_instruction;
 	wire IF_ID_write, IF_ID_sync_nop;
 
-	//delete everything except bl later
-	reg ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq;
+	reg ID_EX_bl;
 
 	wire [2:0] IF_branch_select;
    	wire [15:0] IF_branch_return_addr;
+
+	wire [15:0] ID_BL_BEQ_address;   
+	wire IF_B;
 	
-	//assign IF_pc_address_in = (ID_EX_b | ID_EX_br | ID_EX_bl | (ID_EX_beq&EX_alu_zero)) ? EX_branch_address_3 : IF_pc_plus_1;
+	// pc adder sections
+	assign IF_B = (IF_instruction[15:12] == `b);
+
+	always @ (*) begin
+		case ({IF_B, IF_branch_select})
+			4'b1000: IF_pc_address_in = {IF_pc_plus_1[15:12], IF_instruction[11:0]};
+			4'b0100: IF_pc_address_in = ID_BL_BEQ_address;
+			4'b0010: IF_pc_address_in = ID_BL_BEQ_address;
+			4'b0001: IF_pc_address_in = IF_branch_return_addr;
+			default: IF_pc_address_in = IF_pc_plus_1;
+		endcase
+	end
 	
 
 	pc _pc (IF_pc_address_out, IF_pc_address_in, clk, pc_reset, pc_write);
@@ -150,7 +163,9 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	end
 
 	assign ID_imm = ID_bl ? {{8{IF_ID_instruction[11]}}, IF_ID_instruction[11:4]} : {{12{IF_ID_instruction[3]}}, IF_ID_instruction[3:0]};
-	assign ID_branch_address = {IF_ID_pc_plus_1[15:12], IF_ID_instruction[11:0]};
+
+
+	cla_16 _branch_adder (ID_BL_BEQ_address, 1'b0, ID_imm, IF_ID_pc_plus_1);
 
 	controls _controls (
 		ID_reg_dst, ID_b, ID_beq, ID_bl, ID_br, ID_mem_to_reg,
@@ -181,13 +196,13 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 		{
 			ID_EX_reg_write, ID_EX_mem_to_reg,
 			ID_EX_mem_write, ID_EX_mem_read,
-			ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq,
+			ID_EX_bl,
 			ID_EX_alu_src, ID_EX_reg_dst,
 			ID_EX_alu_op
 		} <= {
 			ID_mux_reg_write, ID_mux_mem_to_reg,
 			ID_mux_mem_write, ID_mux_mem_read,
-			ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq,
+			ID_mux_bl,
 			ID_mux_alu_src, ID_mux_reg_dst,
 			ID_mux_alu_op
 		};
@@ -208,15 +223,9 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	wire [15:0] EX_alu_out;
 	reg [3:0] EX_rt_rd;
 	wire [1:0] forward_a, forward_b;
-
-	reg [15:0] EX_MEM_alu_out;
-
-	//need to implement branching adder and muxes
-	wire [15:0] EX_branch_address_1, EX_branch_address_2;
+	
 	reg [15:0] EX_alu_in_1, EX_alu_in_2, EX_write_data;
-	cla_16 _branch_adder (EX_branch_address_1, 1'b0, ID_EX_imm, ID_EX_pc_plus_1);
-	assign EX_branch_address_2 = ID_EX_b ? ID_EX_branch_address : EX_branch_address_1;
-	assign EX_branch_address_3 = ID_EX_br ? EX_alu_in_1 : EX_branch_address_2;
+	reg [15:0] EX_MEM_alu_out;
 
 	always @ (*) begin
 		case (forward_a) 
