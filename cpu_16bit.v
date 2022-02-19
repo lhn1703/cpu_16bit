@@ -1,9 +1,11 @@
 `include "macro_defines.v"
-module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
+module cpu_16bit (output reg [23:0] debug, output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
     
 	// IF
 	//wire [15:0] IF_pc_address_in, IF_pc_address_out;
-	reg [15:0] IF_pc_address_in;
+	
+	wire [15:0] IF_pc_address_in, IF_pc_address_in_plus_1;
+	wire [15:0] IF_pc_address_in_B, IF_pc_address_in_BL_BEQ, IF_pc_address_in_BR;
 	wire [15:0] IF_pc_address_out;
 	wire pc_write;
 	wire [15:0] IF_pc_plus_1, IF_instruction;
@@ -16,12 +18,21 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 
 	wire [15:0] ID_BL_BEQ_address;
 	wire [15:0] IF_B_address;   
-	wire IF_B;
+	wire IF_B, IF_BL, IF_BEQ, IF_BR;
 	
 	// pc adder sections
+	assign {IF_BL, IF_BEQ, IF_BR} = IF_branch_select;
 	assign IF_B = (IF_instruction[15:12] == `b);
 	assign IF_B_address = {IF_pc_plus_1[15:12], IF_instruction[11:0]};
-
+	
+	assign IF_pc_address_in_BL_BEQ = (IF_BL | IF_BEQ) ? ID_BL_BEQ_address : 16'b0;
+	assign IF_pc_address_in_BR = (~(IF_BL | IF_BEQ) & IF_BR) ? IF_branch_return_addr : 16'b0;
+	assign IF_pc_address_in_B = (~(IF_BL | IF_BEQ | IF_BR) & IF_B) ? IF_B_address : 16'b0;
+	assign IF_pc_address_in_plus_1 = (IF_BL | IF_BEQ | IF_BR | IF_B) ? 16'b0 : IF_pc_plus_1;
+	
+	assign IF_pc_address_in = IF_pc_address_in_BL_BEQ | IF_pc_address_in_BR | IF_pc_address_in_B | IF_pc_address_in_plus_1;
+	
+	/*
 	always @ (*) begin
 		casex ({IF_B, IF_branch_select})
 			4'bx1xx: IF_pc_address_in = ID_BL_BEQ_address;
@@ -31,7 +42,7 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 			default: IF_pc_address_in = IF_pc_plus_1;
 		endcase
 	end
-	
+	*/
 
 	pc _pc (IF_pc_address_out, IF_pc_address_in, clk, pc_reset, pc_write);
 	add_1 _add_1 (IF_pc_plus_1, IF_pc_address_out);
@@ -332,9 +343,12 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
     );
 
 	// Debugging
-	// always @ (*) begin
-	// 	debug[2:0] = IF_instruction[14:12];
-	// 	debug[3] = ~pc_reset & (IF_instruction == IF_ID_instruction); 
-	// 	debug[15:4] = 12'b0;
-	// end
+	always @ (*) begin
+		debug[7:0] = IF_pc_address_out[7:0];
+		/*debug[11:8] = IF_pc_address_in_B[3:0];
+		debug[15:12] = IF_pc_address_in_BL_BEQ[3:0];
+		debug[19:16] = IF_pc_address_in_BR[3:0];
+		debug[23:20] = IF_pc_address_in_plus_1[3:0];*/
+		debug[23:8] = IF_instruction;
+	end
 endmodule
