@@ -14,18 +14,20 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	wire [2:0] IF_branch_select;
    	wire [15:0] IF_branch_return_addr;
 
-	wire [15:0] ID_BL_BEQ_address;   
+	wire [15:0] ID_BL_BEQ_address;
+	wire [15:0] IF_B_address;   
 	wire IF_B;
 	
 	// pc adder sections
 	assign IF_B = (IF_instruction[15:12] == `b);
+	assign IF_B_address = {IF_pc_plus_1[15:12], IF_instruction[11:0]};
 
 	always @ (*) begin
-		case ({IF_B, IF_branch_select})
-			4'b1000: IF_pc_address_in = {IF_pc_plus_1[15:12], IF_instruction[11:0]};
-			4'b0100: IF_pc_address_in = ID_BL_BEQ_address;
-			4'b0010: IF_pc_address_in = ID_BL_BEQ_address;
-			4'b0001: IF_pc_address_in = IF_branch_return_addr;
+		casex ({IF_B, IF_branch_select})
+			4'bx1xx: IF_pc_address_in = ID_BL_BEQ_address;
+			4'bx01x: IF_pc_address_in = ID_BL_BEQ_address;
+			4'bx001: IF_pc_address_in = IF_branch_return_addr;
+			4'b1000: IF_pc_address_in = IF_B_address;
 			default: IF_pc_address_in = IF_pc_plus_1;
 		endcase
 	end
