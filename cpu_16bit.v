@@ -313,8 +313,8 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 
 	hazard_detection_unit _hazard_detection_unit(
 		pc_write, IF_ID_write, controls_clear,
-		ID_EX_mem_read,
-		ID_EX_rt, ID_rs, ID_rt
+		ID_EX_mem_read, EX_MEM_mem_read, ID_br,
+		ID_EX_rt, ID_rs, ID_rt, EX_MEM_rd
 	);
 	
 	branch_forwarding_selector _branch_forwarding_selector(
