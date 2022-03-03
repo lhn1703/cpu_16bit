@@ -1,5 +1,5 @@
 `include "macro_defines.v"
-module cpu_16bit (output reg [23:0] debug, output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
+module cpu_16bit (output reg [127:0] debug, input [15:0] initial_input, input clk, pc_reset);
     
 	// IF
 	//wire [15:0] IF_pc_address_in, IF_pc_address_out;
@@ -91,6 +91,8 @@ module cpu_16bit (output reg [23:0] debug, output [15:0] result_reg, input [15:0
 	reg ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq;
 	reg ID_mux_alu_src, ID_mux_reg_dst;
 	reg [3:0] ID_mux_alu_op;
+
+	wire [31:0] result_reg;
 
 	always @ (*) begin
 		case(IF_ID_instruction[15:12]) //opcode
@@ -344,11 +346,12 @@ module cpu_16bit (output reg [23:0] debug, output [15:0] result_reg, input [15:0
 
 	// Debugging
 	always @ (*) begin
-		debug[7:0] = IF_pc_address_out[7:0];
-		/*debug[11:8] = IF_pc_address_in_B[3:0];
-		debug[15:12] = IF_pc_address_in_BL_BEQ[3:0];
-		debug[19:16] = IF_pc_address_in_BR[3:0];
-		debug[23:20] = IF_pc_address_in_plus_1[3:0];*/
-		debug[23:8] = IF_instruction;
+		debug[7:0] = IF_pc_address_in_B[7:0];
+		debug[15:8] = IF_pc_address_in_BL_BEQ[7:0];
+		debug[23:16] = IF_pc_address_in_BR[7:0];
+		debug[31:24] = IF_pc_address_in_plus_1[7:0];
+		debug[63:32] = result_reg;
+		debug[71:64] = IF_pc_address_out[7:0];
+		debug[127:72] = 56'b0;
 	end
 endmodule
