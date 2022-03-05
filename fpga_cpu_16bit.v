@@ -50,12 +50,25 @@ module fpga_cpu_16bit (
     inout [3:0] HSMC_D,
     input [16:0] HSMC_RX_D_P,
     output [16:0] HSMC_TX_D_P,
+	output SMA_CLKOUT,
     input [16:0] SW,
     input [3:0] KEY,
     output [16:0] LEDR
     );
 
+	reg [16:0] count;
+	always @(posedge clk) begin
+		if(~KEY[0])
+			count = 0;
+		else if(~KEY[1])
+			count = count;
+		else
+			count = count + 1;
+	end
+	assign LEDR = count;
+	
+	assign SMA_CLKOUT = clk;
     assign HSMC_TX_D_P = SW;
-    assign LEDR = HSMC_RX_D_P;
+    //assign LEDR = HSMC_RX_D_P;
     assign {HSMC_CLKOUT0, HSMC_CLKOUT_P1, HSMC_CLKOUT_P2} = {3{clk}};
 endmodule
