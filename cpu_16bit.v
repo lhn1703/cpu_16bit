@@ -352,6 +352,8 @@ module cpu_16bit (output reg [127:0] debug, input [15:0] initial_input, input cl
 		debug[31:24] = IF_pc_address_in_plus_1[7:0];
 		debug[63:32] = result_reg;
 		debug[71:64] = IF_pc_address_out[7:0];
-		debug[127:72] = 56'b0;
+		debug[79:72] = IF_pc_address_in[7:0];
+		debug[87:80] = {7'b0, pc_write};
+		debug[127:88] = 40'b0;
 	end
 endmodule

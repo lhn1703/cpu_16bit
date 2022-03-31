@@ -19,7 +19,7 @@
 ## PROGRAM "Quartus Prime"
 ## VERSION "Version 17.1.0 Build 590 10/25/2017 SJ Lite Edition"
 
-## DATE    "Sat Feb 19 11:20:43 2022"
+## DATE    "Thu Mar 31 10:51:15 2022"
 
 ##
 ## DEVICE  "EP4CE115F29C7"
@@ -38,7 +38,7 @@ set_time_format -unit ns -decimal_places 3
 # Create Clock
 #**************************************************************
 
-create_clock -name {clk} -period 30.000 -waveform { 0.000 15.000 } [get_ports { clk }]
+create_clock -name {clk} -period 60.000 -waveform { 0.000 30.000 } [get_ports {clk}]
 
 
 #**************************************************************
@@ -57,14 +57,6 @@ create_clock -name {clk} -period 30.000 -waveform { 0.000 15.000 } [get_ports { 
 # Set Clock Uncertainty
 #**************************************************************
 
-set_clock_uncertainty -rise_from [get_clocks {KEY[0]}] -rise_to [get_clocks {clk}]  0.030  
-set_clock_uncertainty -rise_from [get_clocks {KEY[0]}] -fall_to [get_clocks {clk}]  0.030  
-set_clock_uncertainty -fall_from [get_clocks {KEY[0]}] -rise_to [get_clocks {clk}]  0.030  
-set_clock_uncertainty -fall_from [get_clocks {KEY[0]}] -fall_to [get_clocks {clk}]  0.030  
-set_clock_uncertainty -rise_from [get_clocks {clk}] -rise_to [get_clocks {clk}]  0.020  
-set_clock_uncertainty -rise_from [get_clocks {clk}] -fall_to [get_clocks {clk}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk}] -rise_to [get_clocks {clk}]  0.020  
-set_clock_uncertainty -fall_from [get_clocks {clk}] -fall_to [get_clocks {clk}]  0.020  
 
 
 #**************************************************************

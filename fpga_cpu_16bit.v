@@ -3,15 +3,16 @@ module hex_debugger(
         output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7,
         input [127:0] debug,
         input [1:0] KEY
-    )
+    );
 
     reg [31:0] state_value;
     always @ (*) begin
-        case(KEY) begin
+        case(KEY)
             2'b00: state_value = debug[31:0];
             2'b01: state_value = debug[63:32];
             2'b10: state_value = debug[95:64];
             2'b11: state_value = debug[127:96];
+            default: state_value = 32'hFFFFFFFF;
         endcase
     end
 
@@ -38,7 +39,7 @@ module fpga_cpu_16bit (
     assign LEDR = SW;
     assign initial_input = SW; //9 bit 2s complement sign extended value
 
-    cpu_16bit u0000(debug, initial_input, ~KEY[1], ~KEY[0]);
-    hex_debugger(HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7, debug, ~(KEY[3:2]));
+    cpu_16bit u0000(debug, initial_input, ~KEY[3], ~KEY[2]);
+    hex_debugger(HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7, debug, ~(KEY[1:0]));
 
 endmodule

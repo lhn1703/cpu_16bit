@@ -6,9 +6,9 @@ module pc (
 	always @ (posedge clk or posedge reset)
 		if (reset)
 			pc_address <= 0;
-		else if (pc_write)
+		else if (pc_write & ~reset)
 			pc_address <= new_address;
-		else
+		else if (~pc_write & ~reset)
 			pc_address <= pc_address;
 endmodule
 	
