@@ -3,8 +3,10 @@ JedecChain;
 	FileRevision(JESD32A);
 	DefaultMfr(6E);
 
+	P ActionCode(Ign)
+		Device PartName(5CSEMA5) MfrSpec(OpMask(0));
 	P ActionCode(Cfg)
-		Device PartName(EP4CE115F29) Path("D:/Users/Jon Case/Documents/GitHub/cpu_16bit/de2_synth/") File("fpga_cpu_16bit.sof") MfrSpec(OpMask(1));
+		Device PartName(5CSEMA5F31) Path("D:/Users/Jon Case/Documents/GitHub/cpu_16bit/de2_synth/") File("fpga_cpu_16bit.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 
