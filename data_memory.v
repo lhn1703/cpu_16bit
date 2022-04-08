@@ -16,6 +16,8 @@ module data_memory
 
 	always @ (posedge clk) begin
 		if (mem_write)
-			mem[address] <= write_data;		
+			mem[address] <= write_data;
+		else
+			mem[address] <= mem[address];
 	end
 endmodule
