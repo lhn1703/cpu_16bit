@@ -1,17 +1,49 @@
 `include "macro_defines.v"
-module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [15:0] initial_input, input clk, pc_reset);
+module cpu_16bit (output reg [127:0] debug, input [15:0] initial_input, input clk, pc_reset);
     
 	// IF
-	wire [15:0] IF_pc_address_in, IF_pc_address_out;
-	wire [15:0] EX_branch_address_3;
+	//wire [15:0] IF_pc_address_in, IF_pc_address_out;
+	
+	wire [15:0] IF_pc_address_in, IF_pc_address_in_plus_1;
+	wire [15:0] IF_pc_address_in_B, IF_pc_address_in_BL_BEQ, IF_pc_address_in_BR;
+	wire [15:0] IF_pc_address_out;
 	wire pc_write;
 	wire [15:0] IF_pc_plus_1, IF_instruction;
 	wire IF_ID_write, IF_ID_sync_nop;
 
-	reg ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq;
-	wire EX_alu_zero;
+	reg ID_EX_bl;
+
+	wire [2:0] IF_branch_select;
+   	wire [15:0] IF_branch_return_addr;
+
+	wire [15:0] ID_BL_BEQ_address;
+	wire [15:0] IF_B_address;   
+	wire IF_B, IF_BL, IF_BEQ, IF_BR;
 	
-	assign IF_pc_address_in = (ID_EX_b | ID_EX_br | ID_EX_bl | (ID_EX_beq&EX_alu_zero)) ? EX_branch_address_3 : IF_pc_plus_1;
+	// pc adder sections
+	assign {IF_BL, IF_BEQ, IF_BR} = IF_branch_select;
+	assign IF_B = (IF_instruction[15:12] == `b);
+	assign IF_B_address = {IF_pc_plus_1[15:12], IF_instruction[11:0]};
+	
+	assign IF_pc_address_in_BL_BEQ = (IF_BL | IF_BEQ) ? ID_BL_BEQ_address : 16'b0;
+	assign IF_pc_address_in_BR = (~(IF_BL | IF_BEQ) & IF_BR) ? IF_branch_return_addr : 16'b0;
+	assign IF_pc_address_in_B = (~(IF_BL | IF_BEQ | IF_BR) & IF_B) ? IF_B_address : 16'b0;
+	assign IF_pc_address_in_plus_1 = (IF_BL | IF_BEQ | IF_BR | IF_B) ? 16'b0 : IF_pc_plus_1;
+	
+	assign IF_pc_address_in = IF_pc_address_in_BL_BEQ | IF_pc_address_in_BR | IF_pc_address_in_B | IF_pc_address_in_plus_1;
+	
+	/*
+	always @ (*) begin
+		casex ({IF_B, IF_branch_select})
+			4'bx1xx: IF_pc_address_in = ID_BL_BEQ_address;
+			4'bx01x: IF_pc_address_in = ID_BL_BEQ_address;
+			4'bx001: IF_pc_address_in = IF_branch_return_addr;
+			4'b1000: IF_pc_address_in = IF_B_address;
+			default: IF_pc_address_in = IF_pc_plus_1;
+		endcase
+	end
+	*/
+
 	pc _pc (IF_pc_address_out, IF_pc_address_in, clk, pc_reset, pc_write);
 	add_1 _add_1 (IF_pc_plus_1, IF_pc_address_out);
 	instruction_memory _instruction_mem(IF_instruction, IF_pc_address_out, clk);
@@ -59,6 +91,8 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	reg ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq;
 	reg ID_mux_alu_src, ID_mux_reg_dst;
 	reg [3:0] ID_mux_alu_op;
+
+	wire [31:0] result_reg;
 
 	always @ (*) begin
 		case(IF_ID_instruction[15:12]) //opcode
@@ -143,7 +177,9 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	end
 
 	assign ID_imm = ID_bl ? {{8{IF_ID_instruction[11]}}, IF_ID_instruction[11:4]} : {{12{IF_ID_instruction[3]}}, IF_ID_instruction[3:0]};
-	assign ID_branch_address = {IF_ID_pc_plus_1[15:12], IF_ID_instruction[11:0]};
+
+
+	cla_16 _branch_adder (ID_BL_BEQ_address, 1'b0, ID_imm, IF_ID_pc_plus_1);
 
 	controls _controls (
 		ID_reg_dst, ID_b, ID_beq, ID_bl, ID_br, ID_mem_to_reg,
@@ -174,13 +210,13 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 		{
 			ID_EX_reg_write, ID_EX_mem_to_reg,
 			ID_EX_mem_write, ID_EX_mem_read,
-			ID_EX_b, ID_EX_br, ID_EX_bl, ID_EX_beq,
+			ID_EX_bl,
 			ID_EX_alu_src, ID_EX_reg_dst,
 			ID_EX_alu_op
 		} <= {
 			ID_mux_reg_write, ID_mux_mem_to_reg,
 			ID_mux_mem_write, ID_mux_mem_read,
-			ID_mux_b, ID_mux_br, ID_mux_bl, ID_mux_beq,
+			ID_mux_bl,
 			ID_mux_alu_src, ID_mux_reg_dst,
 			ID_mux_alu_op
 		};
@@ -201,15 +237,9 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	wire [15:0] EX_alu_out;
 	reg [3:0] EX_rt_rd;
 	wire [1:0] forward_a, forward_b;
-
-	reg [15:0] EX_MEM_alu_out;
-
-	//need to implement branching adder and muxes
-	wire [15:0] EX_branch_address_1, EX_branch_address_2;
+	
 	reg [15:0] EX_alu_in_1, EX_alu_in_2, EX_write_data;
-	cla_16 _branch_adder (EX_branch_address_1, 1'b0, ID_EX_imm, ID_EX_pc_plus_1);
-	assign EX_branch_address_2 = ID_EX_b ? ID_EX_branch_address : EX_branch_address_1;
-	assign EX_branch_address_3 = ID_EX_br ? EX_alu_in_1 : EX_branch_address_2;
+	reg [15:0] EX_MEM_alu_out;
 
 	always @ (*) begin
 		case (forward_a) 
@@ -230,7 +260,7 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 		EX_rt_rd = (ID_EX_reg_dst) ? ID_EX_rd : ID_EX_rt;
 	end
 	
-	alu _alu(EX_alu_zero, EX_alu_out, EX_alu_in_1, EX_alu_in_2, ID_EX_alu_op);
+	alu _alu(EX_alu_out, EX_alu_in_1, EX_alu_in_2, ID_EX_alu_op);
 	
 	// EX/MEM
 	reg EX_MEM_reg_write, EX_MEM_bl, EX_MEM_mem_to_reg;
@@ -284,27 +314,50 @@ module cpu_16bit (/*output reg [15:0] debug, */output [15:0] result_reg, input [
 	assign WB_data = (MEM_WB_bl) ? MEM_WB_pc_plus_1 : WB_mux_1;
 
 	// Pipelining Units
+	wire [3:0] forward_c;
+	wire [15:0] rd1_sel, rd2_sel;
+
 	forwarding_unit _forwarding_unit (
-		forward_a, forward_b,
-		ID_EX_rs, ID_EX_rt, EX_MEM_rd, MEM_WB_rd,
-		EX_MEM_reg_write, MEM_WB_reg_write
-	);
+    	forward_a, forward_b,
+    	forward_c,
+    	EX_rt_rd, ID_EX_rs, ID_EX_rt, ID_rs, ID_rt, EX_MEM_rd, MEM_WB_rd,
+    	ID_EX_reg_write, EX_MEM_reg_write, MEM_WB_reg_write
+    );
+
 	hazard_detection_unit _hazard_detection_unit(
 		pc_write, IF_ID_write, controls_clear,
-		ID_EX_mem_read,
-		ID_EX_rt, ID_rs, ID_rt
+		ID_EX_mem_read, EX_MEM_mem_read, ID_br,
+		ID_EX_rt, ID_rs, ID_rt, EX_MEM_rd
 	);
-	pipeline_flusher _pipeline_flusher(
-		IF_ID_sync_nop,
-		ID_read_data_1, ID_read_data_2, EX_alu_out,
-		ID_rs, ID_rt, EX_rt_rd,
-		ID_mux_b, ID_mux_bl, ID_mux_br, ID_mux_beq, clk
-	);
+	
+	branch_forwarding_selector _branch_forwarding_selector(
+    	rd1_sel, rd2_sel,
+    	ID_read_data_1, ID_read_data_2, EX_MEM_alu_out, EX_alu_out, WB_data, 
+    	forward_c
+    );
+	
+	pipeline_flusher _pipeline_flusher (
+    	IF_ID_sync_nop,
+    	IF_branch_select,
+   		IF_branch_return_addr,
+    	rd1_sel, rd2_sel,
+		ID_mux_bl, ID_mux_beq, ID_mux_br
+    );
 
 	// Debugging
-	// always @ (*) begin
-	// 	debug[2:0] = IF_instruction[14:12];
-	// 	debug[3] = ~pc_reset & (IF_instruction == IF_ID_instruction); 
-	// 	debug[15:4] = 12'b0;
-	// end
+	always @ (*) begin
+		debug[15:0] = result_reg;
+		debug[127:16] = 112'b0;
+		/*
+		debug[7:0] = IF_pc_address_in_B[7:0];
+		debug[15:8] = IF_pc_address_in_BL_BEQ[7:0];
+		debug[23:16] = IF_pc_address_in_BR[7:0];
+		debug[31:24] = IF_pc_address_in_plus_1[7:0];
+		debug[63:32] = result_reg;
+		debug[71:64] = IF_pc_address_out[7:0];
+		debug[79:72] = IF_pc_address_in[7:0];
+		debug[87:80] = {7'b0, pc_write};
+		debug[127:88] = 40'b0;
+		*/
+	end
 endmodule
