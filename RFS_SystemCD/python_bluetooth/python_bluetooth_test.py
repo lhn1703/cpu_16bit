@@ -3,7 +3,7 @@ import sys
 import bluetooth
 
 
-sock = bluetooth.BluetoothSocket(bluetooth.L2CAP)
+sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
 if len(sys.argv) < 2:
     print("Usage: l2capclient.py <addr>")
