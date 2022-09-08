@@ -1,14 +1,28 @@
+import sys
+
 import bluetooth
 
-serverMACAddress = 'D8:F3:BC:55:52:40'
-port = 3
-s = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-s.connect((serverMACAddress, port))
-print(bluetooth.discover_devices())
-print("connected to ", serverMACAddress)
-while 1:
-    text = input() # Note change to the old (Python 2) raw_input
-    if text == "quit":
+
+sock = bluetooth.BluetoothSocket(bluetooth.L2CAP)
+
+if len(sys.argv) < 2:
+    print("Usage: l2capclient.py <addr>")
+    sys.exit(2)
+
+bt_addr = sys.argv[1]
+port = 0x1001
+
+print("Trying to connect to {} on PSM 0x{}...".format(bt_addr, port))
+
+sock.connect((bt_addr, port))
+
+print("Connected. Type something...")
+while True:
+    data = input()
+    if not data:
         break
-    s.send(text)
-s.close()
+    sock.send(data)
+    data = sock.recv(1024)
+    print("Data received:", str(data))
+
+sock.close()
