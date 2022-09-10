@@ -47,6 +47,7 @@ wire 				cts; // clear to send
 wire 				rxd;
 wire 				txd;
 wire	 [7:0]   uart_data;
+reg	 	 [15:0]  buffed_data;
 wire	         rdempty;
 wire	         write;
 reg	     	   read;
@@ -73,6 +74,11 @@ uart_control UART0(
 	.uart_tx(txd),
 	.uart_rx(rxd)
 	
+);
+
+hex_display hex0 (
+    HEX0, HEX1, HEX2, HEX3,
+    buffed_data
 );	
 
 //read
@@ -91,6 +97,7 @@ begin
     LEDR <= 0;
   else if(KEY[0] & write)
   begin
+	buffed_data <= {buffed_data[7:0], uart_data};
     case(uart_data)
 	 10'h30:LEDR <= LEDR | 8'd1;
 	 10'h31:LEDR <= LEDR | 8'd2;

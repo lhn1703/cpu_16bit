@@ -271,12 +271,6 @@ set_location_assignment PIN_AA13 -to DRAM_WE_N
 #============================================================
 
 
-set_global_assignment -name VERILOG_FILE uart/uart_fifo.v
-set_global_assignment -name VERILOG_FILE uart/uart_control.v
-set_global_assignment -name VERILOG_FILE uart/async_transmitter.v
-set_global_assignment -name VERILOG_FILE uart/async_receiver.v
-set_global_assignment -name VERILOG_FILE DE2_115_BluetoothSPP_Slave.v
-set_global_assignment -name SDC_FILE DE2_115_BluetoothSPP_Slave.SDC
 set_location_assignment PIN_AJ4 -to ADC_CS_N
 set_location_assignment PIN_AK4 -to ADC_DIN
 set_location_assignment PIN_AK3 -to ADC_DOUT
@@ -951,4 +945,16 @@ set_instance_assignment -name PACKAGE_SKEW_COMPENSATION OFF -to HPS_DDR3_CK_N -e
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VERILOG_FILE hex_display.v
+set_global_assignment -name VERILOG_FILE hex_decoder.v
+set_global_assignment -name VERILOG_FILE uart/uart_fifo.v
+set_global_assignment -name VERILOG_FILE uart/uart_control.v
+set_global_assignment -name VERILOG_FILE uart/async_transmitter.v
+set_global_assignment -name VERILOG_FILE uart/async_receiver.v
+set_global_assignment -name VERILOG_FILE DE2_115_BluetoothSPP_Slave.v
+set_global_assignment -name SDC_FILE DE2_115_BluetoothSPP_Slave.SDC
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
