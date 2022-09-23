@@ -1,5 +1,13 @@
 `include "macro_defines.v"
-module cpu_16bit (output reg [127:0] debug, input [15:0] initial_input, input clk, pc_reset);
+module cpu_16bit (
+		output reg [127:0] debug,
+		input [15:0] initial_input,
+		input [15:0] bluetooth_addr,
+		input [15:0] bluetooth_data,
+		input prog_ld,
+		input clk,
+		input pc_reset
+	);
     
 	// IF
 	//wire [15:0] IF_pc_address_in, IF_pc_address_out;
@@ -46,7 +54,11 @@ module cpu_16bit (output reg [127:0] debug, input [15:0] initial_input, input cl
 
 	pc _pc (IF_pc_address_out, IF_pc_address_in, clk, pc_reset, pc_write);
 	add_1 _add_1 (IF_pc_plus_1, IF_pc_address_out);
-	instruction_memory _instruction_mem(IF_instruction, IF_pc_address_out, clk);
+	instruction_memory _instruction_mem(
+		IF_instruction, IF_pc_address_out,
+		bluetooth_data, bluetooth_addr,
+		prog_ld, clk
+	);
 	
 
 	// IF/ID
@@ -346,8 +358,10 @@ module cpu_16bit (output reg [127:0] debug, input [15:0] initial_input, input cl
 
 	// Debugging
 	always @ (*) begin
-		debug[15:0] = result_reg;
-		debug[127:16] = 112'b0;
+		debug[31:0] = {16'h0, result_reg};
+		debug[63:32] = {IF_pc_address_out, IF_instruction};
+		debug[95:64] = {bluetooth_addr, bluetooth_data};
+		debug[127:96] = {31'h0, prog_ld};
 		/*
 		debug[7:0] = IF_pc_address_in_B[7:0];
 		debug[15:8] = IF_pc_address_in_BL_BEQ[7:0];
