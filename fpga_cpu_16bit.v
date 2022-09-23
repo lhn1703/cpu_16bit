@@ -40,7 +40,7 @@ module fpga_cpu_16bit (
 	wire byte_cnt;
 	wire prog_ld;
 	
-    assign LEDR = bluetooth_data[9:0];
+    assign LEDR = SW;
     assign initial_input = {6'b0, SW}; //9 bit 2s complement sign extended value
 
     cpu_16bit u0000(debug, initial_input, bluetooth_addr, bluetooth_data, prog_ld, clk, ~KEY[2]);

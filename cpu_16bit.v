@@ -52,11 +52,13 @@ module cpu_16bit (
 	end
 	*/
 
+	wire [15:0] debug_instruction;
 	pc _pc (IF_pc_address_out, IF_pc_address_in, clk, pc_reset, pc_write);
 	add_1 _add_1 (IF_pc_plus_1, IF_pc_address_out);
 	instruction_memory _instruction_mem(
 		IF_instruction, IF_pc_address_out,
 		bluetooth_data, bluetooth_addr,
+		initial_input, debug_instruction,
 		prog_ld, clk
 	);
 	
@@ -361,7 +363,7 @@ module cpu_16bit (
 		debug[31:0] = {16'h0, result_reg};
 		debug[63:32] = {IF_pc_address_out, IF_instruction};
 		debug[95:64] = {bluetooth_addr, bluetooth_data};
-		debug[127:96] = {31'h0, prog_ld};
+		debug[127:96] = {16'h0, debug_instruction};
 		/*
 		debug[7:0] = IF_pc_address_in_B[7:0];
 		debug[15:8] = IF_pc_address_in_BL_BEQ[7:0];

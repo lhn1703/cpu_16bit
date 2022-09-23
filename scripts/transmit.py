@@ -12,4 +12,5 @@ while 1:
 		for line in f:
 			port.write(bytes([int(line[0:8],2)]))
 			port.write(bytes([int(line[8:16],2)]))
-			#input()
+		port.write(bytes([36304 >> 8]))
+		port.write(bytes([36304 & 255]))
