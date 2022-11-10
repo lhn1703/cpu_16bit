@@ -14,3 +14,5 @@ while 1:
 			port.write(bytes([int(line[8:16],2)]))
 		port.write(bytes([36304 >> 8]))
 		port.write(bytes([36304 & 255]))
+
+#encryption alg
