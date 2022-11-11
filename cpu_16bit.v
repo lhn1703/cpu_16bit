@@ -1,10 +1,11 @@
 `include "macro_defines.v"
 module cpu_16bit (
 		output reg [127:0] debug,
-		input [15:0] initial_input,
-		input [15:0] bluetooth_addr,
-		input [15:0] bluetooth_data,
+		output [15:0] mmio_write_data,
+		input [15:0] uart_read_addr,
+		input [15:0] uart_read_data,
 		input prog_ld,
+		input [15:0] initial_input,
 		input clk,
 		input pc_reset
 	);
@@ -57,7 +58,7 @@ module cpu_16bit (
 	add_1 _add_1 (IF_pc_plus_1, IF_pc_address_out);
 	instruction_memory _instruction_mem(
 		IF_instruction, IF_pc_address_out,
-		bluetooth_data, bluetooth_addr,
+		uart_read_data, uart_read_addr,
 		initial_input, debug_instruction,
 		prog_ld, clk
 	);
@@ -302,6 +303,7 @@ module cpu_16bit (
 
 	data_memory _data_memory(
 		MEM_read_data,
+		mmio_write_data,
 		EX_MEM_alu_out,
 		EX_MEM_write_data,
 		EX_MEM_mem_read, EX_MEM_mem_write, clk
@@ -361,8 +363,8 @@ module cpu_16bit (
 	// Debugging
 	always @ (*) begin
 		debug[31:0] = {16'h0, result_reg};
-		debug[63:32] = {IF_pc_address_out, IF_instruction};
-		debug[95:64] = {bluetooth_addr, bluetooth_data};
+		debug[63:32] = {IF_pc_address_out, mmio_write_data};
+		debug[95:64] = {uart_read_addr, uart_read_data};
 		debug[127:96] = {16'h0, debug_instruction};
 		/*
 		debug[7:0] = IF_pc_address_in_B[7:0];

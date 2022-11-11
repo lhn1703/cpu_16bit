@@ -5,9 +5,13 @@
 
 module rfs (
 
-		output reg [15:0] data_out,
+		output reg [15:0] data_in,
 		output reg byte_cnt,
-		output reg write_out,
+		output reg data_in_ld,
+		
+		input [7:0] write_data,
+		input write,
+		
 
 		//////////// CLOCK //////////
 		input clk,
@@ -33,13 +37,13 @@ module rfs (
 	wire cts; // clear to send
 	wire rxd;
 	wire txd;
-	wire [7:0] uart_data;
+	wire [7:0] read_data;
 	wire rdempty;
-	wire write;
+	wire read_byte;
 	reg read;
 	reg cnt;
 	
-	reg [15:0] buffed_data;
+	reg [15:0] buffered_read_data;
 	//=======================================================
 	//  Structural coding
 	//=======================================================
@@ -51,11 +55,11 @@ module rfs (
 		.reset_n(~reset),
 		// tx
 		.write(write),
-		.writedata(uart_data),
+		.writedata(write_data),
 
 		// rx
 		.read(read),
-		.readdata(uart_data),
+		.readdata(read_data),
 		.rdempty(rdempty),
 		//
 		.uart_clk_25m(cnt),
@@ -72,22 +76,22 @@ module rfs (
 			read <= 0;
 	end
 	
-	assign write = ( read & (~rdempty) );
+	assign read_byte = ( read & (~rdempty) );
 
 	always @(posedge clk or posedge reset) begin
-		write_out <= write;
+		data_in_ld <= read_byte;
 		if (reset) begin
-			buffed_data <= 0;
+			buffered_read_data <= 0;
 			byte_cnt <= 0;
 		end
-		else if (~reset & write) begin
-			buffed_data <= {buffed_data[7:0], uart_data};
+		else if (~reset & read_byte) begin
+			buffered_read_data <= {buffered_read_data[7:0], read_data};
 			byte_cnt <= ~byte_cnt;
 		end
 	end
 	
 	always @(negedge byte_cnt)
-		data_out = buffed_data;
+		data_in = buffered_read_data;
 
 	always @(posedge clk)
 		cnt <= cnt + 1;

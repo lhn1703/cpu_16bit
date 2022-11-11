@@ -44,6 +44,9 @@
 //`define data_size 16'd65535
 `define data_size 16'd1024
 
+//mmio address
+`define mmio_addr 16'd766
+
 //`define sp_initial_address 16'd49152
 `define sp_initial_address 16'd768
 

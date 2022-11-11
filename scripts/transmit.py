@@ -2,7 +2,8 @@
 import serial as s
 from time import sleep
 
-port = s.Serial(port='COM3', baudrate=38400, timeout=0, parity=s.PARITY_NONE, stopbits=1)
+portTX = s.Serial(port='COM3', baudrate=38400, timeout=0, parity=s.PARITY_NONE, stopbits=1)
+portRX = s.Serial(port='COM4', baudrate=38400, timeout=0, parity=s.PARITY_NONE, stopbits=1)
 
 while 1:
 	file = input('Enter a file name (or \'q\' to exit):\n')
@@ -10,9 +11,21 @@ while 1:
 		break
 	with open(file) as f:
 		for line in f:
-			port.write(bytes([int(line[0:8],2)]))
-			port.write(bytes([int(line[8:16],2)]))
-		port.write(bytes([36304 >> 8]))
-		port.write(bytes([36304 & 255]))
-
-#encryption alg
+			portTX.write(bytes([int(line[0:8],2)]))
+			portTX.write(bytes([int(line[8:16],2)]))
+		# Nop for pushing the previous instruction along the buffer
+		portTX.write(bytes([36304 >> 8]))
+		portTX.write(bytes([36304 & 255]))
+	'''
+	x = bytearray(portTX.readline())
+	a = 1
+	for b in x:
+		print(str(a) + ':\t' + "{0:02X}".format(b))
+		a += 1
+	'''
+	a = 1
+	while True:
+		print(str(a) + ' RX:\t' + hex(int.from_bytes(portRX.read(), "big")))
+		print(str(a) + ' TX:\t' + hex(int.from_bytes(portTX.read(), "big")))
+		input()
+		a += 1

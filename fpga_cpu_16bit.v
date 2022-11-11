@@ -35,23 +35,28 @@ module fpga_cpu_16bit (
     );
 	wire [127:0] debug;
     wire [15:0] initial_input;
-	reg [15:0] bluetooth_addr;
-	wire [15:0] bluetooth_data;
+	reg [15:0] uart_read_addr;
+	wire [15:0] uart_read_data;
+	wire [15:0] mmio_write_data;
+	wire [7:0] uart_write_data;
+	wire uart_write;
 	wire byte_cnt;
 	wire prog_ld;
 	
     assign LEDR = SW;
     assign initial_input = {6'b0, SW}; //9 bit 2s complement sign extended value
+	assign uart_write_data = mmio_write_data[7:0];
+	assign uart_write = mmio_write_data[8];
 
-    cpu_16bit u0000(debug, initial_input, bluetooth_addr, bluetooth_data, prog_ld, clk, ~KEY[2]);
+    cpu_16bit u0000(debug, mmio_write_data, uart_read_addr, uart_read_data, prog_ld, initial_input, clk, ~KEY[2]);
     hex_debugger(HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, debug, ~(KEY[1:0]));
-	rfs rfs0(bluetooth_data, byte_cnt, prog_ld, clk, ~KEY[2], GPIO_1);
+	rfs rfs0(uart_read_data, byte_cnt, prog_ld, uart_write_data, uart_write, clk, ~KEY[2], GPIO_1);
 	
 	always @(posedge prog_ld or negedge KEY[2]) begin
 		if (~KEY[2])
-			bluetooth_addr = -1;
+			uart_read_addr = -1;
 		else if (byte_cnt & prog_ld)
-			bluetooth_addr = bluetooth_addr + 1;
+			uart_read_addr = uart_read_addr + 1;
 	end
 
 endmodule
