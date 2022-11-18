@@ -3,7 +3,6 @@ import serial as s
 from time import sleep
 
 portTX = s.Serial(port='COM3', baudrate=38400, timeout=0, parity=s.PARITY_NONE, stopbits=1)
-portRX = s.Serial(port='COM4', baudrate=38400, timeout=0, parity=s.PARITY_NONE, stopbits=1)
 
 while 1:
 	file = input('Enter a file name (or \'q\' to exit):\n')
@@ -25,7 +24,6 @@ while 1:
 	'''
 	a = 1
 	while True:
-		print(str(a) + ' RX:\t' + hex(int.from_bytes(portRX.read(), "big")))
-		print(str(a) + ' TX:\t' + hex(int.from_bytes(portTX.read(), "big")))
+		print(str(a) + ' TX:\t' + (hex(0xca ^ int.from_bytes(portTX.read(), "big"))))
 		input()
 		a += 1
