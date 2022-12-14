@@ -7,7 +7,7 @@ Custom CPU Architecture design inspired by MIPS and ARM
 - r_zero: immutable register containing 16'b0
 - sp: initialized to the data memory address that allocates the top quarter of data storage ([sp+n] allocates n halfwords in the stack) 
 - lr: updated when executing a bl instruction
-- [sp-2]: memory-mapped I/O register for RFS bluetooth interface (supports both read and write)
+- [sp-2]: memory-mapped I/O register for RFS bluetooth interface for writing data from the CPU
 
 # Instruction List 
 - add 	rd, rs, rt
