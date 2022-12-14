@@ -56,7 +56,7 @@ Custom CPU Architecture design inspired by MIPS and ARM
 - control hazards: assume branch not taken, contains combinational logic to check for conditional beq branching by comparing rs and rt in the ID stage
 - will also forward the ALU result back to perform the correct comparison if rs or rt in beq instruction is being modified by a previous instruction
 
-# Datapaths (Not Updated Yet)
+# Datapaths (Base CPU)
 - R-type Instruction
 ![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/r-type.png)
 - I-type Instruction
