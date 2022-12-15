@@ -5,8 +5,9 @@ Custom CPU Architecture design inspired by MIPS and ARM
 # Registers and Memory
 - 13 general purpose regisers r0 to r12
 - r_zero: immutable register containing 16'b0
-- sp: initialized to the data memory address that allocates the top quarter of data storage
+- sp: initialized to the data memory address that allocates the top quarter of data storage ([sp+n] allocates n halfwords in the stack) 
 - lr: updated when executing a bl instruction
+- [sp-2]: memory-mapped I/O register for RFS bluetooth interface for writing data from the CPU
 
 # Instruction List 
 - add 	rd, rs, rt
@@ -55,7 +56,7 @@ Custom CPU Architecture design inspired by MIPS and ARM
 - control hazards: assume branch not taken, contains combinational logic to check for conditional beq branching by comparing rs and rt in the ID stage
 - will also forward the ALU result back to perform the correct comparison if rs or rt in beq instruction is being modified by a previous instruction
 
-# Datapaths (Not Updated Yet)
+# Datapaths (Base CPU)
 - R-type Instruction
 ![](https://github.com/lhn1703/cpu_16bit/blob/main/documentation/r-type.png)
 - I-type Instruction
