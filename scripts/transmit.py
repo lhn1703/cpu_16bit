@@ -15,15 +15,7 @@ while 1:
 		# Nop for pushing the previous instruction along the buffer
 		portTX.write(bytes([36304 >> 8]))
 		portTX.write(bytes([36304 & 255]))
-	'''
-	x = bytearray(portTX.readline())
-	a = 1
-	for b in x:
-		print(str(a) + ':\t' + "{0:02X}".format(b))
-		a += 1
-	'''
-	a = 1
 	while True:
-		print(str(a) + ' TX:\t' + (hex(0xca ^ int.from_bytes(portTX.read(), "big"))))
+		received = portTX.read()
+		print('TX:\t' + hex(0xca ^ int.from_bytes(received, "big")))
 		input()
-		a += 1
